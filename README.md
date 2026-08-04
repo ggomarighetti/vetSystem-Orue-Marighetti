@@ -44,6 +44,12 @@ Para ejecutar las pruebas:
 .\mvnw.cmd test
 ```
 
+## Documentación
+
+![Diagrama de dominio de VetSystem](docs/diagrama-dominio.png)
+
+- [Fuente PlantUML del diagrama](docs/diagrama-dominio.puml)
+
 ## Ramas
 
 - `main`: versión estable del proyecto.

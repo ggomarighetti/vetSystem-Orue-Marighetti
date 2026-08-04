@@ -1,0 +1,100 @@
+@startuml
+title Modelo de Dominio - Clínica Veterinaria "Patitas Felices"
+caption Sprint 1 - Guillermo Gabriel Orue Marighetti
+
+skinparam dpi 180
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundCorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam titleFontColor #12324A
+skinparam titleFontSize 22
+skinparam titleFontStyle bold
+skinparam captionFontColor #5B6B7A
+skinparam captionFontSize 11
+skinparam classAttributeIconSize 0
+skinparam classBorderColor #176B87
+skinparam classBackgroundColor #F5FBFD
+skinparam classHeaderBackgroundColor #DDF3F8
+skinparam classFontColor #102A3A
+skinparam classStereotypeFontColor #176B87
+skinparam enumBorderColor #2E7D5B
+skinparam enumBackgroundColor #F1FAF5
+skinparam enumFontColor #174B37
+skinparam arrowColor #47697A
+skinparam arrowFontColor #334E5C
+skinparam noteBorderColor #D39B2A
+skinparam noteBackgroundColor #FFF9E8
+skinparam noteFontColor #3E3420
+
+hide methods
+hide circle
+
+class "Dueño" as Dueno <<Entidad>> {
+  id: Long <<PK>>
+  --
+  nombre: String {obligatorio}
+  apellido: String {obligatorio}
+  dni: String {único, obligatorio}
+  telefono: String
+  email: String {obligatorio}
+}
+
+class Mascota <<Entidad>> {
+  id: Long <<PK>>
+  --
+  nombre: String {obligatorio}
+  especie: String {obligatorio}
+  raza: String
+  fechaNacimiento: LocalDate
+}
+
+class Veterinario <<Entidad>> {
+  id: Long <<PK>>
+  --
+  nombre: String {obligatorio}
+  apellido: String {obligatorio}
+  matricula: String {única, obligatoria}
+  especialidad: String {obligatoria}
+}
+
+class Turno <<Entidad>> {
+  id: Long <<PK>>
+  --
+  fecha: LocalDate {obligatoria}
+  hora: LocalTime {obligatoria}
+  motivo: String {obligatorio}
+  estado: EstadoTurno {obligatorio}
+  observaciones: String
+}
+
+enum EstadoTurno {
+  PENDIENTE
+  EN_CURSO
+  FINALIZADO
+  CANCELADO
+}
+
+Dueno "1" -- "0..*" Mascota : posee >
+Mascota "1" -- "0..*" Turno : recibe >
+Veterinario "1" -- "0..*" Turno : atiende >
+Turno ..> EstadoTurno : usa
+
+note bottom of Mascota
+  Toda mascota debe pertenecer
+  a un dueño registrado.
+end note
+
+note bottom of Turno
+  No puede haber dos turnos del mismo
+  veterinario en la misma fecha y hora.
+end note
+
+legend bottom
+  |= Cardinalidad |= Significado |
+  | 1 | Asociación obligatoria a una entidad |
+  | 0..* | Cero o muchas entidades asociadas |
+endlegend
+
+@enduml
