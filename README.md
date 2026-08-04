@@ -12,8 +12,9 @@ Sistema de gestión para la Clínica Veterinaria **Patitas Felices**, desarrolla
 
 - Java 21
 - No es necesario instalar Maven: el repositorio incluye Maven Wrapper.
+- No es necesario instalar un servidor de base de datos: se utiliza H2 en memoria.
 
-Mientras la conexión a MySQL no esté configurada (punto 3 del Sprint 1), el proyecto desactiva temporalmente la autoconfiguración del datasource para poder verificar el arranque inicial.
+La base de datos se crea al iniciar la aplicación y se elimina al detenerla.
 
 En Windows PowerShell:
 
@@ -28,6 +29,14 @@ En Linux o macOS:
 ```
 
 La aplicación quedará disponible en `http://localhost:8080`.
+
+### Consola H2
+
+Con la aplicación en ejecución, abrir `http://localhost:8080/h2-console` y usar:
+
+- JDBC URL: `jdbc:h2:mem:vet_system`
+- Usuario: `sa`
+- Contraseña: dejar vacía
 
 Para ejecutar las pruebas:
 
