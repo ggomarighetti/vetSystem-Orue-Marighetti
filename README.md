@@ -38,6 +38,8 @@ Con la aplicación en ejecución, abrir `http://localhost:8080/h2-console` y usa
 - Usuario: `sa`
 - Contraseña: dejar vacía
 
+> **Nota - Historia 3:** usamos H2 en memoria en lugar de MySQL. Es una configuración de desarrollo y los datos se reinician al detener la aplicación.
+
 Para ejecutar las pruebas:
 
 ```powershell
