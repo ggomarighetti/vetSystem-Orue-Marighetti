@@ -51,6 +51,7 @@ Para ejecutar las pruebas:
 ![Diagrama de dominio de VetSystem](docs/diagrama-dominio.png)
 
 - [Fuente PlantUML del diagrama](docs/diagrama-dominio.puml)
+- [Evidencia de las tablas creadas en H2](docs/evidencia-tablas-h2.png)
 
 ## Ramas
 
