@@ -18,5 +18,6 @@ public interface TurnoMapper {
     @Mapping(target = "observaciones", ignore = true)
     @Mapping(target = "mascota", ignore = true)
     @Mapping(target = "veterinario", ignore = true)
+    @Mapping(target = "medicamentos", ignore = true)
     Turno toEntity(TurnoRequestDTO dto);
 }
