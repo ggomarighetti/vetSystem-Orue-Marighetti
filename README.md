@@ -52,6 +52,7 @@ Para ejecutar las pruebas:
 
 - [Fuente PlantUML del diagrama](docs/diagrama-dominio.puml)
 - [Evidencia de las tablas creadas en H2](docs/evidencia-tablas-h2.png)
+- [Documentos PDF y DOCX de los sprints](docs/sprints/README.md)
 
 ## Ramas
 
