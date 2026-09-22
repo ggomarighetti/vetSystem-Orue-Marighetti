@@ -119,7 +119,7 @@ Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla
 
 ## Pruebas automatizadas — Sprint 06
 
-`DuenoServiceTest` cubre listas vacías y con datos, consultas por ID existentes e inexistentes, alta correcta y DNI duplicado. `TurnoServiceTest` verifica la creación de un turno y el rechazo de horarios superpuestos sin guardar. `DuenoControllerTest` usa MockMvc para comprobar la lista vacía, la consulta por ID con respuestas 200 y 404, y el alta con respuestas 201 y 400. Son 13 pruebas en total.
+`DuenoServiceTest` cubre listas vacías y con datos, consultas por ID existentes e inexistentes, alta correcta y DNI duplicado. `TurnoServiceTest` verifica la creación de un turno y el rechazo de horarios superpuestos sin guardar. `DuenoControllerTest` usa MockMvc para comprobar la lista vacía, la consulta por ID con respuestas 200 y 404, el alta correcta con 201 y las validaciones de nombre, apellido, DNI y email en blanco con 400. Son 16 pruebas en total.
 
 Los servicios se prueban con JUnit y Mockito, sin contexto de Spring. La prueba HTTP carga solo la capa web con `@WebMvcTest`, usa `@MockitoBean` para los servicios y no inicia un servidor ni una base de datos. Spring Boot 4.1 ofrece esta anotación en lugar de `@MockBean`. Los conflictos de DNI y horario usan la excepción reutilizable `DuplicateResourceException`, definida por la categoría del error. La estructura preparar, ejecutar y verificar de cada prueba se expresa mediante los bloques de código y los nombres de los métodos, sin comentarios en el código fuente.
 
