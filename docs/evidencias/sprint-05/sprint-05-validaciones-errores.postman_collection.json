@@ -1,0 +1,952 @@
+{
+  "info": {
+    "_postman_id": "43f152b0-fecd-4f45-85ee-e205a6955481",
+    "name": "VetSystem Sprint 05 - Validaciones y errores",
+    "description": "Verifica Bean Validation, respuestas ErrorResponse y códigos HTTP 400, 404 y 409.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const futura = new Date();",
+          "futura.setUTCDate(futura.getUTCDate() + 7);",
+          "pm.collectionVariables.set('fechaFutura', futura.toISOString().slice(0, 10));",
+          "const pasada = new Date();",
+          "pasada.setUTCDate(pasada.getUTCDate() - 7);",
+          "pm.collectionVariables.set('fechaPasada', pasada.toISOString().slice(0, 10));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.response.code >= 400) {",
+          "    pm.test('La respuesta usa ErrorResponse', function () {",
+          "        const error = pm.response.json();",
+          "        pm.expect(error).to.have.all.keys('timestamp', 'status', 'error', 'mensaje', 'path');",
+          "        pm.expect(error.status).to.eql(pm.response.code);",
+          "        pm.expect(error.timestamp).to.be.a('string').and.not.empty;",
+          "        pm.expect(error.error).to.be.a('string').and.not.empty;",
+          "        pm.expect(error.mensaje).to.be.a('string').and.not.empty;",
+          "        pm.expect(error.path).to.be.a('string').and.not.empty;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Crear dueño válido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "if (pm.response.code === 201) { pm.collectionVariables.set('duenoId', pm.response.json().id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Pérez\",\n  \"dni\": \"30123456\",\n  \"telefono\": \"1144556677\",\n  \"email\": \"ana.perez@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos"
+      }
+    },
+    {
+      "name": "Rechazar dueño vacío",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Informa los campos obligatorios', function () { const error = pm.response.json(); pm.expect(error.mensaje).to.include('nombre'); pm.expect(error.mensaje).to.include('apellido'); pm.expect(error.mensaje).to.include('dni'); pm.expect(error.mensaje).to.include('email'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos"
+      }
+    },
+    {
+      "name": "Rechazar email inválido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe el error de email', function () { pm.expect(pm.response.json().mensaje).to.include('email'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Bruno\",\n  \"apellido\": \"López\",\n  \"dni\": \"32123456\",\n  \"email\": \"no-es-email\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos"
+      }
+    },
+    {
+      "name": "Rechazar DNI inválido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe el formato de DNI', function () { pm.expect(pm.response.json().mensaje).to.include('DNI'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Bruno\",\n  \"apellido\": \"López\",\n  \"dni\": \"ABC\",\n  \"email\": \"bruno@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos"
+      }
+    },
+    {
+      "name": "Rechazar DNI duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+              "pm.test('Informa el conflicto de DNI', function () { pm.expect(pm.response.json().mensaje).to.include('DNI'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Otra\",\n  \"apellido\": \"Persona\",\n  \"dni\": \"30123456\",\n  \"email\": \"otra@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos"
+      }
+    },
+    {
+      "name": "Rechazar actualización de dueño inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Valida el body del PUT', function () { pm.expect(pm.response.json().mensaje).to.include('email'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Pérez\",\n  \"dni\": \"30123456\",\n  \"email\": \"incorrecto\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      }
+    },
+    {
+      "name": "Crear mascota válida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "if (pm.response.code === 201) { pm.collectionVariables.set('mascotaId', pm.response.json().id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Luna\",\n  \"especie\": \"Perro\",\n  \"raza\": \"Mestiza\",\n  \"fechaNacimiento\": \"2022-05-10\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{duenoId}}"
+      }
+    },
+    {
+      "name": "Rechazar mascota vacía",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Informa nombre y especie', function () { const error = pm.response.json(); pm.expect(error.mensaje).to.include('nombre'); pm.expect(error.mensaje).to.include('especie'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{duenoId}}"
+      }
+    },
+    {
+      "name": "Rechazar fecha de nacimiento futura",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe la fecha futura', function () { pm.expect(pm.response.json().mensaje).to.include('fechaNacimiento'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Sol\",\n  \"especie\": \"Gato\",\n  \"fechaNacimiento\": \"{{fechaFutura}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{duenoId}}"
+      }
+    },
+    {
+      "name": "Rechazar actualización de mascota inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Valida el body del PUT', function () { pm.expect(pm.response.json().mensaje).to.include('fechaNacimiento'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Luna\",\n  \"especie\": \"Perro\",\n  \"fechaNacimiento\": \"{{fechaFutura}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}"
+      }
+    },
+    {
+      "name": "Crear veterinario válido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "if (pm.response.code === 201) { pm.collectionVariables.set('veterinarioId', pm.response.json().id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Lucía\",\n  \"apellido\": \"Gómez\",\n  \"matricula\": \"MV-5001\",\n  \"especialidad\": \"Clínica general\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/veterinarios"
+      }
+    },
+    {
+      "name": "Rechazar veterinario vacío",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Informa los campos obligatorios', function () { const error = pm.response.json(); pm.expect(error.mensaje).to.include('nombre'); pm.expect(error.mensaje).to.include('apellido'); pm.expect(error.mensaje).to.include('matricula'); pm.expect(error.mensaje).to.include('especialidad'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/veterinarios"
+      }
+    },
+    {
+      "name": "Rechazar matrícula inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe el formato de matrícula', function () { pm.expect(pm.response.json().mensaje).to.include('matricula'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Martín\",\n  \"apellido\": \"Ruiz\",\n  \"matricula\": \"5002\",\n  \"especialidad\": \"Cirugía\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/veterinarios"
+      }
+    },
+    {
+      "name": "Rechazar matrícula duplicada",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+              "pm.test('Informa el conflicto de matrícula', function () { pm.expect(pm.response.json().mensaje).to.include('matrícula'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Otra\",\n  \"apellido\": \"Veterinaria\",\n  \"matricula\": \"MV-5001\",\n  \"especialidad\": \"Dermatología\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/veterinarios"
+      }
+    },
+    {
+      "name": "Rechazar actualización de veterinario inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Valida el body del PUT', function () { pm.expect(pm.response.json().mensaje).to.include('matricula'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Lucía\",\n  \"apellido\": \"Gómez\",\n  \"matricula\": \"incorrecta\",\n  \"especialidad\": \"Clínica general\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/veterinarios/{{veterinarioId}}"
+      }
+    },
+    {
+      "name": "Actualizar veterinario sin matrícula",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Actualiza especialidad y conserva matrícula', function () { const veterinario = pm.response.json(); pm.expect(veterinario.especialidad).to.eql('Medicina interna'); pm.expect(veterinario.matricula).to.eql('MV-5001'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Lucía\",\n  \"apellido\": \"Gómez\",\n  \"especialidad\": \"Medicina interna\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/veterinarios/{{veterinarioId}}"
+      }
+    },
+    {
+      "name": "Crear turno válido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "if (pm.response.code === 201) { pm.collectionVariables.set('turnoId', pm.response.json().id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fecha\": \"{{fechaFutura}}\",\n  \"hora\": \"10:30:00\",\n  \"motivo\": \"Control general\",\n  \"mascotaId\": {{mascotaId}},\n  \"veterinarioId\": {{veterinarioId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/turnos"
+      }
+    },
+    {
+      "name": "Rechazar turno con fecha pasada",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe la fecha inválida', function () { pm.expect(pm.response.json().mensaje).to.include('fecha'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fecha\": \"{{fechaPasada}}\",\n  \"hora\": \"11:00:00\",\n  \"motivo\": \"Control\",\n  \"mascotaId\": {{mascotaId}},\n  \"veterinarioId\": {{veterinarioId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/turnos"
+      }
+    },
+    {
+      "name": "Rechazar turno con IDs no positivos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe los identificadores inválidos', function () { const error = pm.response.json(); pm.expect(error.mensaje).to.include('mascotaId'); pm.expect(error.mensaje).to.include('veterinarioId'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fecha\": \"{{fechaFutura}}\",\n  \"hora\": \"11:00:00\",\n  \"motivo\": \"Control\",\n  \"mascotaId\": -1,\n  \"veterinarioId\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/turnos"
+      }
+    },
+    {
+      "name": "Rechazar turno con hora inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Usa ErrorResponse para la hora inválida', function () { pm.expect(pm.response.json().mensaje).to.include('inválidos'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fecha\": \"{{fechaFutura}}\",\n  \"hora\": \"25:99\",\n  \"motivo\": \"Control\",\n  \"mascotaId\": {{mascotaId}},\n  \"veterinarioId\": {{veterinarioId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/turnos"
+      }
+    },
+    {
+      "name": "Rechazar turno superpuesto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+              "pm.test('Informa la superposición', function () { pm.expect(pm.response.json().mensaje).to.include('ya tiene un turno'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fecha\": \"{{fechaFutura}}\",\n  \"hora\": \"10:30:00\",\n  \"motivo\": \"Otro control\",\n  \"mascotaId\": {{mascotaId}},\n  \"veterinarioId\": {{veterinarioId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/turnos"
+      }
+    },
+    {
+      "name": "Rechazar observaciones demasiado extensas",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set('observacionesExtensas', 'X'.repeat(256));"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe el límite de observaciones', function () { pm.expect(pm.response.json().mensaje).to.include('observaciones'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/api/turnos/{{turnoId}}/estado?estado=EN_CURSO&observaciones={{observacionesExtensas}}"
+      }
+    },
+    {
+      "name": "Confirmar que el turno no cambió",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('El turno conserva su estado y observaciones', function () { const turno = pm.response.json(); pm.expect(turno.estado).to.eql('PENDIENTE'); pm.expect(turno.observaciones).to.be.null; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/turnos/{{turnoId}}"
+      }
+    },
+    {
+      "name": "Dueño inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+              "pm.test('Conserva el mensaje de negocio', function () { pm.expect(pm.response.json().mensaje).to.include('no fue encontrado'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/9999"
+      }
+    },
+    {
+      "name": "Veterinario inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+              "pm.test('Usa el mismo ErrorResponse', function () { pm.expect(pm.response.json().path).to.include('/api/veterinarios/9999'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/veterinarios/9999"
+      }
+    },
+    {
+      "name": "Rechazar JSON malformado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Describe la solicitud inválida', function () { pm.expect(pm.response.json().mensaje).to.include('inválidos'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/duenos"
+      }
+    },
+    {
+      "name": "Rechazar parámetro obligatorio ausente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Usa ErrorResponse para query params', function () { pm.expect(pm.response.json().path).to.include('/api/turnos/agenda'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/turnos/agenda?veterinarioId={{veterinarioId}}"
+      }
+    },
+    {
+      "name": "Rechazar fecha de query inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Usa ErrorResponse para tipos inválidos', function () { pm.expect(pm.response.json().status).to.eql(400); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/turnos/agenda?veterinarioId={{veterinarioId}}&fecha=no-es-fecha"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "duenoId",
+      "value": ""
+    },
+    {
+      "key": "mascotaId",
+      "value": ""
+    },
+    {
+      "key": "veterinarioId",
+      "value": ""
+    },
+    {
+      "key": "turnoId",
+      "value": ""
+    },
+    {
+      "key": "fechaFutura",
+      "value": ""
+    },
+    {
+      "key": "fechaPasada",
+      "value": ""
+    }
+  ]
+}

@@ -104,6 +104,19 @@ La API de turnos permite listar, consultar por ID y crear en `/api/turnos`; cons
 
 Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla en el orden guardado. La colección cubre los DTOs existentes, los cinco endpoints de Veterinario, los endpoints de Turno, la agenda, el cambio de estado, los conflictos de horario y la protección de asociaciones.
 
+## Validaciones y manejo global de errores — Sprint 05
+
+Los DTOs de entrada aplican Bean Validation y todos los métodos POST y PUT activan las restricciones con `@Valid`. Se validan campos obligatorios, formatos de DNI, email y matrícula, longitudes, fechas y los identificadores positivos de turnos antes de invocar los servicios. La matrícula es obligatoria al crear un veterinario y puede omitirse al actualizarlo, ya que permanece inmutable. El cambio de estado de un turno rechaza con HTTP 400 las observaciones de más de 255 caracteres antes de guardar.
+
+`GlobalExceptionHandler` centraliza los errores de validación, recursos inexistentes, conflictos de negocio, solicitudes malformadas y fallos inesperados. Todas las respuestas de error usan `ErrorResponse` con `timestamp`, `status`, `error`, `mensaje` y `path`. Los datos inválidos responden 400, los recursos inexistentes 404 y los duplicados o asociaciones en conflicto 409.
+
+- [Consigna del sprint 05](docs/sprints/Sprint_05_Validaciones_Errores.docx).
+- [Colección de Postman con 28 solicitudes](docs/evidencias/sprint-05/sprint-05-validaciones-errores.postman_collection.json).
+- [Resultados de Newman con 74 verificaciones aprobadas](docs/evidencias/sprint-05/sprint-05-validaciones-errores.newman-results.json).
+- [Ejecución de regresión de la colección del sprint 04 con 61 verificaciones aprobadas](docs/evidencias/sprint-05/sprint-04-regresion.newman-results.json).
+
+Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla en el orden guardado. La colección crea los datos mínimos necesarios y comprueba validaciones de creación y actualización, la matrícula inmutable, el rechazo de observaciones extensas sin cambiar el turno, JSON malformado, parámetros inválidos, recursos inexistentes y conflictos de unicidad y horario.
+
 ## Documentación
 
 ![Diagrama de dominio de VetSystem](docs/evidencias/sprint-01/sprint-01-diagrama-dominio.png)
@@ -131,4 +144,5 @@ El resumen usa `formatVersion: 1` e incluye herramienta de origen, fecha de ejec
 - `sprint-02`: arquitectura MVC y CRUD REST de dueños.
 - `sprint-03`: relaciones JPA y CRUD REST de mascotas.
 - `sprint-04`: DTOs con MapStruct y API REST de veterinarios y turnos.
+- `sprint-05`: validaciones de entrada y manejo global de errores.
 - `sprint-06`: respaldo de las pruebas anticipadas, pendiente de adaptar a la consigna del sprint 06.

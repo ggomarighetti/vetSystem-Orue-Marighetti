@@ -4,6 +4,7 @@ import com.vetSystem.vet_system.dto.DuenoDTO;
 import com.vetSystem.vet_system.dto.MascotaDTO;
 import com.vetSystem.vet_system.service.DuenoService;
 import com.vetSystem.vet_system.service.MascotaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,13 +43,13 @@ public class DuenoController {
     }
 
     @PostMapping
-    public ResponseEntity<DuenoDTO> createDueno(@RequestBody DuenoDTO dueno) {
+    public ResponseEntity<DuenoDTO> createDueno(@Valid @RequestBody DuenoDTO dueno) {
         DuenoDTO nuevo = duenoService.createDueno(dueno);
         return ResponseEntity.created(URI.create("/api/duenos/" + nuevo.getId())).body(nuevo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DuenoDTO> updateDueno(@PathVariable Long id, @RequestBody DuenoDTO dueno) {
+    public ResponseEntity<DuenoDTO> updateDueno(@PathVariable Long id, @Valid @RequestBody DuenoDTO dueno) {
         return ResponseEntity.ok(duenoService.updateDueno(id, dueno));
     }
 

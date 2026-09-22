@@ -4,6 +4,7 @@ import com.vetSystem.vet_system.dto.TurnoRequestDTO;
 import com.vetSystem.vet_system.dto.TurnoResponseDTO;
 import com.vetSystem.vet_system.model.EstadoTurno;
 import com.vetSystem.vet_system.service.TurnoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +50,7 @@ public class TurnoController {
     }
 
     @PostMapping
-    public ResponseEntity<TurnoResponseDTO> createTurno(@RequestBody TurnoRequestDTO request) {
+    public ResponseEntity<TurnoResponseDTO> createTurno(@Valid @RequestBody TurnoRequestDTO request) {
         TurnoResponseDTO nuevo = turnoService.createTurno(request);
         return ResponseEntity.created(URI.create("/api/turnos/" + nuevo.getId())).body(nuevo);
     }
