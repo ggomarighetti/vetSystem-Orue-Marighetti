@@ -1,0 +1,746 @@
+{
+  "formatVersion": 1,
+  "source": "Newman 6.2.2",
+  "executedAt": "2026-09-22T19:11:11.770+00:00",
+  "collection": "VetSystem Sprint 05 - Validaciones y errores",
+  "summary": {
+    "requests": {
+      "total": 28,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 74,
+      "pending": 0,
+      "failed": 0
+    },
+    "failures": []
+  },
+  "results": [
+    {
+      "name": "Crear dueño válido",
+      "method": "POST",
+      "url": "http://localhost:18085/api/duenos",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Ana",
+        "apellido": "Pérez",
+        "dni": "30123456",
+        "telefono": "1144556677",
+        "email": "ana.perez@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar dueño vacío",
+      "method": "POST",
+      "url": "http://localhost:18085/api/duenos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.635764159",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "apellido: El apellido es obligatorio; dni: El DNI es obligatorio; email: El email es obligatorio; nombre: El nombre es obligatorio",
+        "path": "/api/duenos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Informa los campos obligatorios",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar email inválido",
+      "method": "POST",
+      "url": "http://localhost:18085/api/duenos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.674752541",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "email: El email debe tener un formato válido",
+        "path": "/api/duenos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe el error de email",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar DNI inválido",
+      "method": "POST",
+      "url": "http://localhost:18085/api/duenos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.703131657",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "dni: El DNI debe contener entre 7 y 8 dígitos",
+        "path": "/api/duenos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe el formato de DNI",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar DNI duplicado",
+      "method": "POST",
+      "url": "http://localhost:18085/api/duenos",
+      "status": 409,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.736208425",
+        "status": 409,
+        "error": "Conflict",
+        "mensaje": "Ya existe un dueño con DNI: 30123456",
+        "path": "/api/duenos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Informa el conflicto de DNI",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar actualización de dueño inválida",
+      "method": "PUT",
+      "url": "http://localhost:18085/api/duenos/1",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.764369375",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "email: El email debe tener un formato válido",
+        "path": "/api/duenos/1"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Valida el body del PUT",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Crear mascota válida",
+      "method": "POST",
+      "url": "http://localhost:18085/api/mascotas?duenoId=1",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Luna",
+        "especie": "Perro",
+        "raza": "Mestiza",
+        "fechaNacimiento": "2022-05-10",
+        "duenoId": 1,
+        "duenoNombre": "Ana"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar mascota vacía",
+      "method": "POST",
+      "url": "http://localhost:18085/api/mascotas?duenoId=1",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.860118178",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "especie: La especie es obligatoria; nombre: El nombre es obligatorio",
+        "path": "/api/mascotas"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Informa nombre y especie",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar fecha de nacimiento futura",
+      "method": "POST",
+      "url": "http://localhost:18085/api/mascotas?duenoId=1",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.888078753",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "fechaNacimiento: La fecha de nacimiento no puede ser futura",
+        "path": "/api/mascotas"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe la fecha futura",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar actualización de mascota inválida",
+      "method": "PUT",
+      "url": "http://localhost:18085/api/mascotas/1",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.916094899",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "fechaNacimiento: La fecha de nacimiento no puede ser futura",
+        "path": "/api/mascotas/1"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Valida el body del PUT",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Crear veterinario válido",
+      "method": "POST",
+      "url": "http://localhost:18085/api/veterinarios",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Lucía",
+        "apellido": "Gómez",
+        "matricula": "MV-5001",
+        "especialidad": "Clínica general"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar veterinario vacío",
+      "method": "POST",
+      "url": "http://localhost:18085/api/veterinarios",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:12.988326575",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "apellido: El apellido es obligatorio; especialidad: La especialidad es obligatoria; matricula: La matrícula es obligatoria; nombre: El nombre es obligatorio",
+        "path": "/api/veterinarios"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Informa los campos obligatorios",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar matrícula inválida",
+      "method": "POST",
+      "url": "http://localhost:18085/api/veterinarios",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.018255212",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "matricula: La matrícula debe tener el formato MV- seguido de números",
+        "path": "/api/veterinarios"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe el formato de matrícula",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar matrícula duplicada",
+      "method": "POST",
+      "url": "http://localhost:18085/api/veterinarios",
+      "status": 409,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.045560587",
+        "status": 409,
+        "error": "Conflict",
+        "mensaje": "Ya existe un veterinario con matrícula: MV-5001",
+        "path": "/api/veterinarios"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Informa el conflicto de matrícula",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar actualización de veterinario inválida",
+      "method": "PUT",
+      "url": "http://localhost:18085/api/veterinarios/1",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.072321372",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "matricula: La matrícula debe tener el formato MV- seguido de números",
+        "path": "/api/veterinarios/1"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Valida el body del PUT",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Actualizar veterinario sin matrícula",
+      "method": "PUT",
+      "url": "http://localhost:18085/api/veterinarios/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Lucía",
+        "apellido": "Gómez",
+        "matricula": "MV-5001",
+        "especialidad": "Medicina interna"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Actualiza especialidad y conserva matrícula",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Crear turno válido",
+      "method": "POST",
+      "url": "http://localhost:18085/api/turnos",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "fecha": "2026-09-29",
+        "hora": "10:30:00",
+        "motivo": "Control general",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Luna",
+        "veterinarioNombre": "Lucía"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar turno con fecha pasada",
+      "method": "POST",
+      "url": "http://localhost:18085/api/turnos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.200628811",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "fecha: La fecha debe ser actual o futura",
+        "path": "/api/turnos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe la fecha inválida",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar turno con IDs no positivos",
+      "method": "POST",
+      "url": "http://localhost:18085/api/turnos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.22491998",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "mascotaId: El identificador de la mascota debe ser positivo; veterinarioId: El identificador del veterinario debe ser positivo",
+        "path": "/api/turnos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe los identificadores inválidos",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar turno con hora inválida",
+      "method": "POST",
+      "url": "http://localhost:18085/api/turnos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.249689682",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "La solicitud contiene datos inválidos o incompletos",
+        "path": "/api/turnos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Usa ErrorResponse para la hora inválida",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar turno superpuesto",
+      "method": "POST",
+      "url": "http://localhost:18085/api/turnos",
+      "status": 409,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.27781933",
+        "status": 409,
+        "error": "Conflict",
+        "mensaje": "El veterinario ya tiene un turno en ese horario",
+        "path": "/api/turnos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Informa la superposición",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar observaciones demasiado extensas",
+      "method": "PATCH",
+      "url": "http://localhost:18085/api/turnos/1/estado?estado=EN_CURSO&observaciones=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.30953134",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "El campo observaciones no puede superar 255 caracteres",
+        "path": "/api/turnos/1/estado"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe el límite de observaciones",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Confirmar que el turno no cambió",
+      "method": "GET",
+      "url": "http://localhost:18085/api/turnos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-09-29",
+        "hora": "10:30:00",
+        "motivo": "Control general",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Luna",
+        "veterinarioNombre": "Lucía"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "El turno conserva su estado y observaciones",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Dueño inexistente",
+      "method": "GET",
+      "url": "http://localhost:18085/api/duenos/9999",
+      "status": 404,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.372688483",
+        "status": 404,
+        "error": "Not Found",
+        "mensaje": "Dueño con id 9999 no fue encontrado",
+        "path": "/api/duenos/9999"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Conserva el mensaje de negocio",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Veterinario inexistente",
+      "method": "GET",
+      "url": "http://localhost:18085/api/veterinarios/9999",
+      "status": 404,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.397974144",
+        "status": 404,
+        "error": "Not Found",
+        "mensaje": "Veterinario con id 9999 no fue encontrado",
+        "path": "/api/veterinarios/9999"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Usa el mismo ErrorResponse",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar JSON malformado",
+      "method": "POST",
+      "url": "http://localhost:18085/api/duenos",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.422425225",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "La solicitud contiene datos inválidos o incompletos",
+        "path": "/api/duenos"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Describe la solicitud inválida",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar parámetro obligatorio ausente",
+      "method": "GET",
+      "url": "http://localhost:18085/api/turnos/agenda?veterinarioId=1",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.448523128",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "La solicitud contiene datos inválidos o incompletos",
+        "path": "/api/turnos/agenda"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Usa ErrorResponse para query params",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Rechazar fecha de query inválida",
+      "method": "GET",
+      "url": "http://localhost:18085/api/turnos/agenda?veterinarioId=1&fecha=no-es-fecha",
+      "status": 400,
+      "body": {
+        "timestamp": "2026-09-22T19:11:13.476822264",
+        "status": 400,
+        "error": "Bad Request",
+        "mensaje": "La solicitud contiene datos inválidos o incompletos",
+        "path": "/api/turnos/agenda"
+      },
+      "assertions": [
+        {
+          "name": "La respuesta usa ErrorResponse",
+          "passed": true
+        },
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Usa ErrorResponse para tipos inválidos",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}
