@@ -1,9 +1,9 @@
 package com.vetSystem.vet_system;
 
+import com.vetSystem.vet_system.support.ApiIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@ApiIntegrationTest
 class VetSystemApplicationTests {
 
 	@Test

@@ -64,6 +64,18 @@ Para ejecutar las pruebas:
 .\mvnw.cmd test
 ```
 
+### Organización de las pruebas
+
+Las pruebas de integración usan `@ApiIntegrationTest`, que reúne el contexto de Spring Boot, MockMvc, el perfil `test` y las utilidades comunes. La configuración está en `src/test/resources/application-test.properties`: H2 en memoria para pruebas, esquema creado por Hibernate al cargar el contexto y configuración JPA compartida.
+
+Los escenarios se preparan con `@Sql` y los archivos de `src/test/resources/fixtures/`. La anotación puede colocarse en una clase para cargar datos antes de cada método o en un método para agregar datos específicos. `@SqlMergeMode(MERGE)` combina ambos niveles. Por ejemplo, `DuenoRelacionesApiTests` carga el dueño y sus mascotas para todos sus casos, y el test con turno agrega `fixtures/duenos/turno.sql`.
+
+`DatabaseCleanupListener` ejecuta `fixtures/cleanup.sql` antes y después de cada caso, en transacciones independientes. Su orden garantiza que la limpieza inicial ocurra antes de los scripts de `@Sql`. Los borrados respetan las claves foráneas y los datos de prueba usan IDs generados por la base. Al agregar tablas, también debe actualizarse el script de limpieza.
+
+Las pruebas de API conservan las transacciones del servicio para verificar commits, conflictos y concurrencia. La anotación común incluye el bloqueo `api-database`, que evita que distintas pruebas modifiquen simultáneamente la base compartida cuando se habilita la ejecución paralela de JUnit. El caso de altas concurrentes sigue ejecutando sus solicitudes en varios hilos dentro de una única prueba.
+
+`DuenoTestData` construye objetos nuevos para las solicitudes que se serializan con Jackson. `DatabaseAssertions` agrupa las consultas de verificación y compara el estado completo de dueños, mascotas, turnos y veterinarios después de un borrado rechazado.
+
 ## API de dueños — Sprint 02
 
 La API expone `/api/duenos` para crear y listar dueños, y `/api/duenos/{id}` para consultar, actualizar y eliminar. Devuelve 201 al crear, 200 al consultar o actualizar, 204 al eliminar un dueño sin mascotas, 404 si el dueño no existe y 409 si el DNI ya está registrado o se intenta eliminar un dueño con mascotas asociadas. Los datos obligatorios ausentes o en blanco devuelven 400.
