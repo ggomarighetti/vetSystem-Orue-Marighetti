@@ -1,16 +1,10 @@
 package com.vetSystem.vet_system.controller;
 
-import com.vetSystem.vet_system.exception.DuplicateResourceException;
-import com.vetSystem.vet_system.exception.InvalidResourceException;
-import com.vetSystem.vet_system.exception.ResourceInUseException;
-import com.vetSystem.vet_system.exception.ResourceNotFoundException;
 import com.vetSystem.vet_system.model.Dueno;
 import com.vetSystem.vet_system.service.DuenoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/duenos")
@@ -55,25 +48,5 @@ public class DuenoController {
     public ResponseEntity<Void> deleteDueno(@PathVariable Long id) {
         duenoService.deleteDueno(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(ResourceNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensaje", exception.getMessage()));
-    }
-
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicate(DuplicateResourceException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("mensaje", exception.getMessage()));
-    }
-
-    @ExceptionHandler(ResourceInUseException.class)
-    public ResponseEntity<Map<String, String>> handleResourceInUse(ResourceInUseException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("mensaje", exception.getMessage()));
-    }
-
-    @ExceptionHandler(InvalidResourceException.class)
-    public ResponseEntity<Map<String, String>> handleInvalid(InvalidResourceException exception) {
-        return ResponseEntity.badRequest().body(Map.of("mensaje", exception.getMessage()));
     }
 }
