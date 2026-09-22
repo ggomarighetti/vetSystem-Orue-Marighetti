@@ -1,0 +1,979 @@
+{
+  "info": {
+    "name": "VetSystem - Sprint 02 - CRUD Dueño",
+    "description": "CRUD de dueños y casos 400, 404 y 409. Ejecutar en orden contra una instancia local de H2 recién iniciada. Usa datos de ejemplo, guarda el ID de la creación y elimina únicamente ese registro. DNI inmutable en PUT. missingId debe ser un ID inexistente. DELETE elimina solo dueños sin mascotas: si hay mascotas asociadas, con o sin turnos, retorna 409 y conserva todas las dependencias. La colección utiliza dueños sin mascotas; las altas de mascotas y turnos corresponden a sprints posteriores.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "dni",
+      "value": "28543210",
+      "type": "string"
+    },
+    {
+      "key": "duenoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "missingId",
+      "value": "999",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Crear dueño",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"González\",\n  \"dni\": \"{{dni}}\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"carlos.gonzalez@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const dueno = pm.response.json();",
+              "pm.test(\"ID generado\", () => pm.expect(dueno.id).to.be.a(\"number\"));",
+              "pm.collectionVariables.set(\"duenoId\", dueno.id);",
+              "pm.test(\"DNI guardado\", () => pm.expect(dueno.dni).to.eql(pm.collectionVariables.get(\"dni\")));",
+              "pm.test(\"Ubicación del recurso\", () => pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"/api/duenos/\" + dueno.id));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "201 Created - ejecución Newman",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/duenos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"González\",\n  \"dni\": \"{{dni}}\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"carlos.gonzalez@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Location",
+              "value": "/api/duenos/1"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:05 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"id\": 1,\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"González\",\n  \"dni\": \"28543210\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"carlos.gonzalez@example.com\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "02 Listar dueños",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Incluye el dueño creado\", () => pm.expect(pm.response.json().some(d => d.id === Number(pm.collectionVariables.get(\"duenoId\")))).to.be.true);"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "200 OK - ejecución Newman",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "[\n  {\n    \"id\": 1,\n    \"nombre\": \"Carlos\",\n    \"apellido\": \"González\",\n    \"dni\": \"28543210\",\n    \"telefono\": \"1145678901\",\n    \"email\": \"carlos.gonzalez@example.com\"\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "03 Obtener dueño por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Datos del dueño\", () => { const d = pm.response.json(); pm.expect(d.nombre).to.eql(\"Carlos\"); pm.expect(d.apellido).to.eql(\"González\"); pm.expect(d.id).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))); });"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "200 OK - ejecución Newman",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"id\": 1,\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"González\",\n  \"dni\": \"28543210\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"carlos.gonzalez@example.com\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "04 Consultar dueño inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{missingId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Mensaje descriptivo\", () => pm.expect(pm.response.json().mensaje).to.eql(\"Dueño con id \" + pm.collectionVariables.get(\"missingId\") + \" no fue encontrado\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "404 Not Found - ejecución Newman",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos/{{missingId}}"
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"mensaje\": \"Dueño con id 999 no fue encontrado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "05 Rechazar DNI duplicado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"María\",\n  \"apellido\": \"López\",\n  \"dni\": \"{{dni}}\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"maria@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+              "pm.test(\"Conflicto de DNI\", () => pm.expect(pm.response.json().mensaje).to.eql(\"Ya existe un dueño con DNI: \" + pm.collectionVariables.get(\"dni\")));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "409 Conflict - ejecución Newman",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/duenos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"María\",\n  \"apellido\": \"López\",\n  \"dni\": \"{{dni}}\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"maria@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Conflict",
+          "code": 409,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"mensaje\": \"Ya existe un dueño con DNI: 28543210\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "06 Actualizar dueño sin enviar DNI",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Datos actualizados y DNI conservado\", () => { const d = pm.response.json(); pm.expect(d.nombre).to.eql(\"Carlos Alberto\"); pm.expect(d.telefono).to.eql(\"1199887766\"); pm.expect(d.email).to.eql(\"carlos.nuevo@example.com\"); pm.expect(d.dni).to.eql(pm.collectionVariables.get(\"dni\")); });"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "200 OK - ejecución Newman",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"id\": 1,\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"dni\": \"28543210\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "07 Comprobar actualización persistida",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cambio persistido\", () => pm.expect(pm.response.json().nombre).to.eql(\"Carlos Alberto\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "200 OK - ejecución Newman",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"id\": 1,\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"dni\": \"28543210\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "08 Conservar ID y DNI aunque se envíen otros",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\",\n  \"id\": 999,\n  \"dni\": \"11111111\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"ID y DNI inmutables\", () => { const d = pm.response.json(); pm.expect(d.id).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))); pm.expect(d.dni).to.eql(pm.collectionVariables.get(\"dni\")); });"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "200 OK - ejecución Newman",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\",\n  \"id\": 999,\n  \"dni\": \"11111111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"id\": 1,\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"dni\": \"28543210\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar datos incompletos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dni\": \"30123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Campo obligatorio informado\", () => pm.expect(pm.response.json().mensaje).to.eql(\"El campo nombre es obligatorio\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "400 Bad Request - ejecución Newman",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/duenos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"30123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            }
+          ],
+          "body": "{\n  \"mensaje\": \"El campo nombre es obligatorio\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "10 Actualizar dueño inexistente",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos/{{missingId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Mensaje de recurso inexistente\", () => pm.expect(pm.response.json().mensaje).to.include(\"no fue encontrado\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "404 Not Found - ejecución Newman",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/duenos/{{missingId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"mensaje\": \"Dueño con id 999 no fue encontrado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "11 Eliminar dueño",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+              "pm.test(\"Respuesta sin cuerpo\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "204 No Content - ejecución Newman",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+          },
+          "status": "No Content",
+          "code": 204,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": ""
+        }
+      ]
+    },
+    {
+      "name": "12 Repetir eliminación",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"No se puede borrar dos veces\", () => pm.expect(pm.response.json().mensaje).to.include(\"no fue encontrado\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "404 Not Found - ejecución Newman",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:06 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"mensaje\": \"Dueño con id 1 no fue encontrado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "13 Consultar dueño eliminado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"El dueño dejó de existir\", () => pm.expect(pm.response.json().mensaje).to.include(\"no fue encontrado\"));"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "404 Not Found - ejecución Newman",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:07 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "{\n  \"mensaje\": \"Dueño con id 1 no fue encontrado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "14 Verificar listado final",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"El listado no incluye el dueño eliminado\", () => pm.expect(pm.response.json().some(d => d.id === Number(pm.collectionVariables.get(\"duenoId\")))).to.be.false);"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "200 OK - ejecución Newman",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/duenos"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 22 Sep 2026 12:53:07 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "body": "[]"
+        }
+      ]
+    }
+  ]
+}
