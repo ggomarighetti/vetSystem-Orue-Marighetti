@@ -66,15 +66,15 @@ Para ejecutar las pruebas:
 
 ### Organización de las pruebas
 
-Las pruebas de integración usan `@ApiIntegrationTest`, que reúne el contexto de Spring Boot, MockMvc, el perfil `test` y las utilidades comunes. La configuración está en `src/test/resources/application-test.properties`: H2 en memoria para pruebas, esquema creado por Hibernate al cargar el contexto y configuración JPA compartida.
+Las clases de pruebas de integración extienden `IntegrationTest`, que reúne las anotaciones estándar de Spring Boot, MockMvc, el perfil `test`, Jackson y los repositorios. La configuración está en `src/test/resources/application-test.properties`: H2 en memoria, esquema creado vacío por Hibernate al cargar el contexto e inicialización automática de datos deshabilitada.
 
 Los escenarios se preparan con `@Sql` y los archivos de `src/test/resources/fixtures/`. La anotación puede colocarse en una clase para cargar datos antes de cada método o en un método para agregar datos específicos. `@SqlMergeMode(MERGE)` combina ambos niveles. Por ejemplo, `DuenoRelacionesApiTests` carga el dueño y sus mascotas para todos sus casos, y el test con turno agrega `fixtures/duenos/turno.sql`.
 
-`DatabaseCleanupListener` ejecuta `fixtures/cleanup.sql` antes y después de cada caso, en transacciones independientes. Su orden garantiza que la limpieza inicial ocurra antes de los scripts de `@Sql`. Los borrados respetan las claves foráneas y los datos de prueba usan IDs generados por la base. Al agregar tablas, también debe actualizarse el script de limpieza.
+Al terminar cada prueba, incluso si falla una aserción, el `@AfterEach` heredado de `IntegrationTest` elimina todos los registros mediante `deleteAllInBatch()` en una transacción: primero turnos, luego mascotas, dueños y veterinarios. Así la siguiente prueba comienza sin datos antes de cargar sus fixtures. Se conserva el esquema y los IDs siguen siendo generados por la base. Al agregar entidades, debe incorporarse su repositorio a esta limpieza respetando las claves foráneas.
 
-Las pruebas de API conservan las transacciones del servicio para verificar commits, conflictos y concurrencia. La anotación común incluye el bloqueo `api-database`, que evita que distintas pruebas modifiquen simultáneamente la base compartida cuando se habilita la ejecución paralela de JUnit. El caso de altas concurrentes sigue ejecutando sus solicitudes en varios hilos dentro de una única prueba.
+Las pruebas de API conservan las transacciones del servicio para verificar commits, conflictos y concurrencia. La clase base incluye el bloqueo `api-database`, que evita que distintas pruebas modifiquen simultáneamente la base compartida cuando se habilita la ejecución paralela de JUnit. El caso de altas concurrentes sigue ejecutando sus solicitudes en varios hilos dentro de una única prueba.
 
-`DuenoTestData` construye objetos nuevos para las solicitudes que se serializan con Jackson. `DatabaseAssertions` agrupa las consultas de verificación y compara el estado completo de dueños, mascotas, turnos y veterinarios después de un borrado rechazado.
+`DuenoTestData` construye objetos nuevos para las solicitudes que se serializan con Jackson. Las aserciones usan `count()`, `findAll()` y los demás métodos de los repositorios. Después de un borrado rechazado se comparan las entidades persistidas y los IDs de sus relaciones para comprobar que los datos se conservaron.
 
 ## API de dueños — Sprint 02
 

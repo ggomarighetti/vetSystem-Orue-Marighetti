@@ -1,17 +1,12 @@
 package com.vetSystem.vet_system;
 
 import com.vetSystem.vet_system.model.Dueno;
-import com.vetSystem.vet_system.repository.DuenoRepository;
-import com.vetSystem.vet_system.support.ApiIntegrationTest;
-import com.vetSystem.vet_system.support.DatabaseAssertions;
+import com.vetSystem.vet_system.support.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.web.servlet.MockMvc;
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
@@ -32,20 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ApiIntegrationTest
-class DuenoApiTests {
-
-    @Autowired
-    private MockMvc mvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private DuenoRepository repository;
-
-    @Autowired
-    private DatabaseAssertions database;
+class DuenoApiTests extends IntegrationTest {
 
     @Test
     void listarSinDuenosDevuelveListaVacia() throws Exception {
@@ -64,11 +46,11 @@ class DuenoApiTests {
                 .andExpect(jsonPath("$.nombre").value("Carlos"))
                 .andExpect(jsonPath("$.mascotas").doesNotExist())
                 .andExpect(header().string("Location", "/api/duenos/" +
-                        repository.findByEmail("carlos.gonzalez@example.com").orElseThrow().getId()));
+                        duenoRepository.findByEmail("carlos.gonzalez@example.com").orElseThrow().getId()));
 
-        assertThat(repository.existsByDni("28543210")).isTrue();
-        assertThat(repository.count()).isEqualTo(1);
-        assertThat(repository.findByEmail("ausente@example.com")).isEmpty();
+        assertThat(duenoRepository.existsByDni("28543210")).isTrue();
+        assertThat(duenoRepository.count()).isEqualTo(1);
+        assertThat(duenoRepository.findByEmail("ausente@example.com")).isEmpty();
     }
 
     @Test
@@ -95,8 +77,8 @@ class DuenoApiTests {
                         .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.mensaje").value("Ya existe un dueño con DNI: 28543210"));
-        assertThat(repository.count()).isEqualTo(1);
-        assertThat(repository.findAll().getFirst().getNombre()).isEqualTo("Carlos");
+        assertThat(duenoRepository.count()).isEqualTo(1);
+        assertThat(duenoRepository.findAll().getFirst().getNombre()).isEqualTo("Carlos");
     }
 
     @Test
@@ -121,7 +103,7 @@ class DuenoApiTests {
             }
             assertThat(estados).containsExactlyInAnyOrder(201, 409, 409, 409, 409, 409, 409, 409);
         }
-        assertThat(repository.count()).isEqualTo(1);
+        assertThat(duenoRepository.count()).isEqualTo(1);
     }
 
     @Test
@@ -136,7 +118,7 @@ class DuenoApiTests {
                 .andExpect(jsonPath("$.nombre").value("Carlos Alberto"))
                 .andExpect(jsonPath("$.telefono").value("1199887766"))
                 .andExpect(jsonPath("$.dni").value("28543210"));
-        Dueno actualizado = repository.findById(dueno.getId()).orElseThrow();
+        Dueno actualizado = duenoRepository.findById(dueno.getId()).orElseThrow();
         assertThat(actualizado.getNombre()).isEqualTo("Carlos Alberto");
         assertThat(actualizado.getEmail()).isEqualTo("carlos.nuevo@example.com");
     }
@@ -155,8 +137,8 @@ class DuenoApiTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dueno.getId()))
                 .andExpect(jsonPath("$.dni").value("28543210"));
-        assertThat(repository.findById(dueno.getId()).orElseThrow().getTelefono()).isNull();
-        assertThat(repository.count()).isEqualTo(1);
+        assertThat(duenoRepository.findById(dueno.getId()).orElseThrow().getTelefono()).isNull();
+        assertThat(duenoRepository.count()).isEqualTo(1);
     }
 
     @Test
@@ -177,9 +159,9 @@ class DuenoApiTests {
                         .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.dni").value("30123456"));
-        assertThat(repository.count()).isEqualTo(2);
-        assertThat(repository.findById(original.getId()).orElseThrow().getNombre()).isEqualTo("Carlos");
-        database.assertSinMascotas();
+        assertThat(duenoRepository.count()).isEqualTo(2);
+        assertThat(duenoRepository.findById(original.getId()).orElseThrow().getNombre()).isEqualTo("Carlos");
+        assertThat(mascotaRepository.count()).isZero();
     }
 
     @Test
@@ -189,7 +171,7 @@ class DuenoApiTests {
         mvc.perform(delete("/api/duenos/{id}", dueno.getId()))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
-        assertThat(repository.existsById(dueno.getId())).isFalse();
+        assertThat(duenoRepository.existsById(dueno.getId())).isFalse();
         mvc.perform(get("/api/duenos/{id}", dueno.getId())).andExpect(status().isNotFound());
         mvc.perform(delete("/api/duenos/{id}", dueno.getId()))
                 .andExpect(status().isNotFound())
@@ -219,7 +201,7 @@ class DuenoApiTests {
                         .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("El campo " + campo + " es obligatorio"));
-        assertThat(repository.count()).isZero();
+        assertThat(duenoRepository.count()).isZero();
     }
 
     @Test
@@ -235,7 +217,7 @@ class DuenoApiTests {
                 .andExpect(jsonPath("$.mensaje").value("El campo nombre no puede superar 255 caracteres"));
         mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON).content("{malformado"))
                 .andExpect(status().isBadRequest());
-        assertThat(repository.count()).isZero();
+        assertThat(duenoRepository.count()).isZero();
     }
 
     @Test
@@ -245,10 +227,10 @@ class DuenoApiTests {
         mvc.perform(put("/api/duenos/{id}", dueno.getId()).contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(objectMapper.createObjectNode())))
                 .andExpect(status().isBadRequest());
-        assertThat(repository.findById(dueno.getId()).orElseThrow().getNombre()).isEqualTo("Carlos");
+        assertThat(duenoRepository.findById(dueno.getId()).orElseThrow().getNombre()).isEqualTo("Carlos");
     }
 
     private Dueno duenoExistente() {
-        return repository.findByEmail("carlos.gonzalez@example.com").orElseThrow();
+        return duenoRepository.findByEmail("carlos.gonzalez@example.com").orElseThrow();
     }
 }

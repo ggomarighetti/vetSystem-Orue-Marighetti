@@ -16,12 +16,12 @@
 
 ## Pruebas de integración
 
-- Usar `@ApiIntegrationTest` para las pruebas de integración de la API. La configuración común pertenece a `src/test/resources/application-test.properties`, sin repetir propiedades en cada clase.
+- Las clases de pruebas de integración deben extender `IntegrationTest`, que concentra las anotaciones estándar de Spring y las dependencias compartidas. No crear una anotación personalizada para sustituir esta clase base. La configuración común pertenece a `src/test/resources/application-test.properties`.
 - Preparar los datos persistidos mediante scripts de `src/test/resources/fixtures/` seleccionados con `@Sql` en la clase o el método. Mantener `@SqlMergeMode(MERGE)` para combinar ambos niveles.
-- La limpieza antes y después de cada prueba se gestiona en `DatabaseCleanupListener`, con orden anterior a la carga de fixtures y transacciones independientes. No agregar limpieza manual con `@BeforeEach` ni envolver estos tests de API en `@Transactional`.
-- Las clases que comparten la base de integración deben conservar el bloqueo `api-database` de la anotación común. La concurrencia dentro de un caso se prueba explícitamente y debe finalizar antes de salir del método.
-- Construir las solicitudes con objetos nuevos de `DuenoTestData` y serializarlas con el Jackson de Spring. Agrupar las comprobaciones directas de la base en `DatabaseAssertions`; mantener las consultas de preparación y limpieza fuera de los tests de API.
-- Al agregar entidades o relaciones, actualizar `fixtures/cleanup.sql` respetando las claves foráneas y las verificaciones de conservación de datos.
+- La base de pruebas debe iniciar sin datos. La limpieza final se centraliza en el `@AfterEach` de `IntegrationTest`, mediante los repositorios y una transacción, respetando las claves foráneas. No duplicar la limpieza en las subclases ni envolver estos tests de API en `@Transactional`.
+- Las clases que comparten la base de integración deben conservar el bloqueo `api-database` de la clase base. La concurrencia dentro de un caso se prueba explícitamente y debe finalizar antes de salir del método.
+- Construir las solicitudes con objetos nuevos de `DuenoTestData` y serializarlas con el Jackson de Spring. Hacer las aserciones de persistencia mediante los repositorios, sin `JdbcTemplate`, SQL crudo en Java ni utilidades genéricas de aserciones de base de datos.
+- Al agregar entidades o relaciones, incorporar su repositorio a la limpieza de `IntegrationTest` y conservar las verificaciones de datos y asociaciones en los tests correspondientes.
 
 ## Formato de las pull requests
 
