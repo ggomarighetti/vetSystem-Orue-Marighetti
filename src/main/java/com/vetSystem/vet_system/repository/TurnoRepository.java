@@ -25,8 +25,6 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     @EntityGraph(attributePaths = {"mascota", "veterinario"})
     Optional<Turno> findById(Long id);
 
-    boolean existsByVeterinarioIdAndFechaAndHora(Long veterinarioId, LocalDate fecha, LocalTime hora);
-
     Optional<Turno> findFirstByVeterinarioIdAndFechaAndHora(Long veterinarioId, LocalDate fecha, LocalTime hora);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

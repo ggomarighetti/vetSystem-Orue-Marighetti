@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -59,9 +60,9 @@ class TurnoServiceTest {
         Turno turno = nuevoTurno();
         TurnoResponseDTO respuesta = turnoCreado();
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
-        when(veterinarioRepository.findById(2L)).thenReturn(Optional.of(veterinario));
-        when(turnoRepository.existsByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
-                .thenReturn(false);
+        when(veterinarioRepository.findByIdForUpdate(2L)).thenReturn(Optional.of(veterinario));
+        when(turnoRepository.findFirstByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
+                .thenReturn(Optional.empty());
         when(turnoMapper.toEntity(request)).thenReturn(turno);
         when(turnoRepository.saveAndFlush(any(Turno.class))).thenReturn(turno);
         when(turnoMapper.toDTO(turno)).thenReturn(respuesta);
@@ -81,17 +82,41 @@ class TurnoServiceTest {
     void createTurno_cuandoHaySuperposicion_lanzaDuplicateResourceExceptionSinGuardar() {
         TurnoRequestDTO request = requestValido();
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascotaExistente()));
-        when(veterinarioRepository.findById(2L)).thenReturn(Optional.of(veterinarioExistente()));
-        when(turnoRepository.existsByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
-                .thenReturn(true);
+        when(veterinarioRepository.findByIdForUpdate(2L)).thenReturn(Optional.of(veterinarioExistente()));
+        Turno conflictivo = new Turno();
+        conflictivo.setId(9L);
+        conflictivo.setFecha(request.getFecha());
+        conflictivo.setHora(request.getHora());
+        when(turnoRepository.findFirstByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
+                .thenReturn(Optional.of(conflictivo));
 
         DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
                 () -> turnoService.createTurno(request));
 
-        assertTrue(exception.getMessage().contains("turno"));
-        verify(turnoRepository).existsByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora());
+        assertTrue(exception.getMessage().contains("turno 9"));
+        assertTrue(exception.getMessage().contains(request.getFecha().toString()));
+        assertTrue(exception.getMessage().contains(request.getHora().toString()));
+        verify(turnoRepository).findFirstByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora());
         verify(turnoRepository, never()).saveAndFlush(any());
         verifyNoInteractions(turnoMapper);
+    }
+
+    @Test
+    void createTurno_noConfundeOtrosErroresDeIntegridadConTurnosDuplicados() {
+        TurnoRequestDTO request = requestValido();
+        Turno turno = nuevoTurno();
+        DataIntegrityViolationException error = new DataIntegrityViolationException("Otro error de integridad");
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascotaExistente()));
+        when(veterinarioRepository.findByIdForUpdate(2L)).thenReturn(Optional.of(veterinarioExistente()));
+        when(turnoRepository.findFirstByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
+                .thenReturn(Optional.empty());
+        when(turnoMapper.toEntity(request)).thenReturn(turno);
+        when(turnoRepository.saveAndFlush(turno)).thenThrow(error);
+
+        DataIntegrityViolationException resultado = assertThrows(DataIntegrityViolationException.class,
+                () -> turnoService.createTurno(request));
+
+        assertSame(error, resultado);
     }
 
     private TurnoRequestDTO requestValido() {

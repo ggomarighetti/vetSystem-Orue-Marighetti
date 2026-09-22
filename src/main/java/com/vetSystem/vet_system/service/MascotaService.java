@@ -1,6 +1,7 @@
 package com.vetSystem.vet_system.service;
 
 import com.vetSystem.vet_system.dto.MascotaDTO;
+import com.vetSystem.vet_system.exception.BusinessRuleException;
 import com.vetSystem.vet_system.exception.DuplicateResourceException;
 import com.vetSystem.vet_system.exception.InvalidResourceException;
 import com.vetSystem.vet_system.exception.ResourceInUseException;
@@ -51,12 +52,17 @@ public class MascotaService {
 
     @Transactional
     public MascotaDTO createMascota(Long duenoId, MascotaDTO datos) {
-        Dueno dueno = duenoRepository.findById(duenoId)
+        Dueno dueno = duenoRepository.findByIdForUpdate(duenoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + duenoId + " no fue encontrado"));
         validarDatos(datos);
         String nombre = datos.getNombre().strip();
         if (mascotaRepository.existsByNombreAndDuenoId(nombre, duenoId)) {
             throw new DuplicateResourceException("Ya existe una mascota con nombre " + nombre + " para el dueño con id " + duenoId);
+        }
+
+        if (mascotaRepository.countByDuenoId(duenoId) >= 5) {
+            throw new BusinessRuleException("El dueño con id " + duenoId
+                    + " ya alcanzó el cupo máximo de 5 mascotas activas");
         }
 
         Mascota mascota = new Mascota();
