@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "source": "Newman 6.2.2",
-  "executedAt": "2026-09-22T15:36:19.126+00:00",
+  "executedAt": "2026-09-22T16:38:11.109+00:00",
   "collection": "VetSystem - Sprint 03 - CRUD Mascota y relaciones",
   "summary": {
     "requests": {

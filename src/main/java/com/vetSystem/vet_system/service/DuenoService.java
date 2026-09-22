@@ -26,7 +26,7 @@ public class DuenoService {
 
     @Transactional(readOnly = true)
     public Dueno getDuenoById(Long id) {
-        return duenoRepository.findById(id)
+        return duenoRepository.findByIdWithMascotas(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado"));
     }
 
