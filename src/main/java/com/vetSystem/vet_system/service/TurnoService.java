@@ -14,7 +14,6 @@ import com.vetSystem.vet_system.repository.MascotaRepository;
 import com.vetSystem.vet_system.repository.TurnoRepository;
 import com.vetSystem.vet_system.repository.VeterinarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,25 +63,24 @@ public class TurnoService {
         Mascota mascota = mascotaRepository.findById(request.getMascotaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Mascota con id "
                         + request.getMascotaId() + " no fue encontrada"));
-        Veterinario veterinario = veterinarioRepository.findById(request.getVeterinarioId())
+        Veterinario veterinario = veterinarioRepository.findByIdForUpdate(request.getVeterinarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Veterinario con id "
                         + request.getVeterinarioId() + " no fue encontrado"));
 
-        if (turnoRepository.existsByVeterinarioIdAndFechaAndHora(
-                request.getVeterinarioId(), request.getFecha(), request.getHora())) {
-            throw new DuplicateResourceException("El veterinario ya tiene un turno en ese horario");
-        }
+        turnoRepository.findFirstByVeterinarioIdAndFechaAndHora(
+                        request.getVeterinarioId(), request.getFecha(), request.getHora())
+                .ifPresent(conflictivo -> {
+                    throw new DuplicateResourceException("El veterinario ya tiene el turno "
+                            + conflictivo.getId() + " el " + conflictivo.getFecha()
+                            + " a las " + conflictivo.getHora());
+                });
 
         Turno turno = turnoMapper.toEntity(request);
         turno.setEstado(EstadoTurno.PENDIENTE);
         turno.setMotivo(request.getMotivo().strip());
         turno.setMascota(mascota);
         turno.setVeterinario(veterinario);
-        try {
-            return turnoMapper.toDTO(turnoRepository.saveAndFlush(turno));
-        } catch (DataIntegrityViolationException exception) {
-            throw new DuplicateResourceException("El veterinario ya tiene un turno en ese horario", exception);
-        }
+        return turnoMapper.toDTO(turnoRepository.saveAndFlush(turno));
     }
 
     @Transactional

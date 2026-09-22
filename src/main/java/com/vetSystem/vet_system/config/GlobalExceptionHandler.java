@@ -1,5 +1,6 @@
 package com.vetSystem.vet_system.config;
 
+import com.vetSystem.vet_system.exception.BusinessRuleException;
 import com.vetSystem.vet_system.exception.DuplicateResourceException;
 import com.vetSystem.vet_system.exception.ErrorResponse;
 import com.vetSystem.vet_system.exception.InvalidResourceException;
@@ -61,6 +62,13 @@ public class GlobalExceptionHandler {
             ResourceInUseException exception,
             HttpServletRequest request) {
         return crearRespuesta(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessRule(
+            BusinessRuleException exception,
+            HttpServletRequest request) {
+        return crearRespuesta(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage(), request);
     }
 
     @ExceptionHandler(InvalidResourceException.class)

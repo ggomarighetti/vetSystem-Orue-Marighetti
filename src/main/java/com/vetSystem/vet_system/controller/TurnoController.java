@@ -2,8 +2,10 @@ package com.vetSystem.vet_system.controller;
 
 import com.vetSystem.vet_system.dto.TurnoRequestDTO;
 import com.vetSystem.vet_system.dto.TurnoResponseDTO;
+import com.vetSystem.vet_system.dto.MedicamentoResponseDTO;
 import com.vetSystem.vet_system.model.EstadoTurno;
 import com.vetSystem.vet_system.service.TurnoService;
+import com.vetSystem.vet_system.service.MedicamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -33,6 +35,7 @@ import java.util.List;
 public class TurnoController {
 
     private final TurnoService turnoService;
+    private final MedicamentoService medicamentoService;
 
     @GetMapping
     @Operation(summary = "Listar turnos", description = "Lista todos los turnos o filtra por veterinario y fecha cuando se indican los parámetros.")
@@ -60,6 +63,26 @@ public class TurnoController {
     @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del turno", example = "7")})
     public ResponseEntity<TurnoResponseDTO> getTurnoById(@PathVariable Long id) {
         return ResponseEntity.ok(turnoService.getTurnoById(id));
+    }
+
+    @GetMapping("/{id}/medicamentos")
+    @Operation(summary = "Listar medicamentos recetados en un turno")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido")
+    @ApiResponse(responseCode = "404", description = "Turno inexistente")
+    public ResponseEntity<List<MedicamentoResponseDTO>> getMedicamentosByTurno(@PathVariable Long id) {
+        return ResponseEntity.ok(medicamentoService.getMedicamentosByTurno(id));
+    }
+
+    @PostMapping("/{turnoId}/medicamentos/{medicamentoId}")
+    @Operation(summary = "Recetar un medicamento", description = "Asocia una unidad al turno y descuenta el stock.")
+    @ApiResponse(responseCode = "200", description = "Medicamento asociado")
+    @ApiResponse(responseCode = "404", description = "Turno o medicamento inexistente")
+    @ApiResponse(responseCode = "409", description = "Medicamento ya asociado")
+    @ApiResponse(responseCode = "422", description = "Medicamento sin stock")
+    public ResponseEntity<MedicamentoResponseDTO> asociarMedicamento(
+            @PathVariable Long turnoId,
+            @PathVariable Long medicamentoId) {
+        return ResponseEntity.ok(medicamentoService.asociarATurno(turnoId, medicamentoId));
     }
 
     @GetMapping("/agenda")

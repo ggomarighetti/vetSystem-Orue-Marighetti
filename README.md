@@ -2,6 +2,8 @@
 
 Sistema de gestión para la Clínica Veterinaria **Patitas Felices**, desarrollado como trabajo práctico de la materia Microservicios y APIs Escalables de la Universidad de Palermo.
 
+**Parcial 1:** [ir directamente a las decisiones de diseño](#parcial-1--decisiones-de-diseño-sprint-08).
+
 ## Integrante
 
 - Guillermo Gabriel Orue Marighetti
@@ -142,6 +144,28 @@ El frontend está en [frontend/index.html](frontend/index.html). Para usarlo con
 - [Consigna del sprint 07](docs/sprints/Sprint_07_Swagger_Frontend_Analisis.docx).
 - [Análisis técnico del monolito](docs/analisis-monolito.md).
 
+## Parcial 1 — Decisiones de diseño (sprint 08)
+
+### Relación Turno–Medicamento
+
+Una relación de muchos a muchos es la única que permite que un turno reciba varios medicamentos y que un medicamento aparezca en varios turnos. Cualquiera de las otras relaciones requiere que una de las dos tablas dedique una columna para identificar a la otra. En este caso, la tabla intermedia asume el costo del JOIN, pero permite asociarlos libremente y escalar la relación.
+
+### Validación de stock
+
+El mecanismo de control de stock está dentro de la transacción que asocia el producto al turno. Se empieza bloqueando el turno para impedir que dos solicitudes agreguen simultáneamente la misma receta. Después se bloquea la fila del medicamento, se comprueba que tenga al menos una unidad, se descuenta la unidad a asignar y recién ahí se guarda la asociación. Si el stock es cero, se lanza una excepción de regla de negocio que GlobalExceptionHandler captura para comunicar el problema con detalle.
+
+### Solapamiento
+
+Para resolver el solapamiento, utilizamos la fecha y la hora del turno y verificamos que no puedan existir dos iguales. No modelé una duración ni un lapso de tiempo porque me parecía que escapaba de la consigna. Basado en esto, se bloquea la fila del veterinario, se consulta si ya tiene un turno registrado en esa fecha y hora y, si se encuentra alguno, se lanza una excepción. Nuevamente la maneja el handler y se responde 409 con un mensaje detallado. El bloqueo de fila serializa las altas de turnos del mismo profesional para que una posible segunda solicitud vea lo que creó la primera.
+
+### Cupo de mascotas
+
+Consideré como mascota activa toda mascota que figure en la tabla. No creé un enum que describa su estado ni una fecha de baja. Existe una consulta que cuenta las mascotas por dueño y, si devuelve que ya tiene cinco, se responde con una excepción de negocio que explica el límite. Nuevamente empleamos el bloqueo de fila durante el conteo y el alta para que dos solicitudes concurrentes no intenten superar el cupo. El control solo se aplica a la hora de crear. Cuando se elimina una mascota sin turnos asociados, su registro deja de contarse y queda disponible un lugar.
+
+### Decisión más difícil
+
+Lo más difícil fue decidir cómo evitar que dos altas simultáneas superen el límite de cinco mascotas de un dueño. Consideré usar @Version, pero crear una mascota modifica la tabla mascotas, no la fila del dueño, por lo que su versión no cambiaría por sí sola. En la alternativa que evaluamos habría que agregar un contador al dueño, actualizarlo al crear o eliminar mascotas y mantenerlo siempre sincronizado con los registros; además, si la versión cambia durante el alta, habría que volver a intentar la operación. Me pareció demasiada lógica para un número que ya podemos consultar en la base de datos. Terminamos eligiendo el bloqueo pesimista de la fila del dueño dentro de la transacción: una solicitud cuenta y guarda, la siguiente espera y, cuando puede continuar, vuelve a contar con el nuevo registro. Así el límite se controla en el servicio sin guardar un contador adicional.
+
 ## Documentación
 
 ![Diagrama de dominio de VetSystem](docs/evidencias/sprint-01/sprint-01-diagrama-dominio.png)
@@ -172,3 +196,4 @@ El resumen usa `formatVersion: 1` e incluye herramienta de origen, fecha de ejec
 - `sprint-05`: validaciones de entrada y manejo global de errores.
 - `sprint-06`: pruebas unitarias de servicios y pruebas de la capa web con MockMvc.
 - `sprint-07`: documentación OpenAPI, frontend de dueños y análisis del monolito.
+- `sprint-08`: medicamentos, reglas de consistencia y apéndice del Parcial 1.

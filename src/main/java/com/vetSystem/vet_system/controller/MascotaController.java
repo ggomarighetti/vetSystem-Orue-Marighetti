@@ -55,6 +55,7 @@ public class MascotaController {
     @ApiResponse(responseCode = "400", description = "Datos o identificador del dueño inválidos")
     @ApiResponse(responseCode = "404", description = "Dueño inexistente")
     @ApiResponse(responseCode = "409", description = "Nombre de mascota repetido para el dueño")
+    @ApiResponse(responseCode = "422", description = "Dueño con cinco mascotas activas")
     @Parameters({@Parameter(name = "duenoId", in = ParameterIn.QUERY, description = "Identificador del dueño", example = "1")})
     public ResponseEntity<MascotaDTO> createMascota(
             @RequestParam Long duenoId,
