@@ -1,9 +1,11 @@
 package com.vetSystem.vet_system.service;
 
+import com.vetSystem.vet_system.dto.DuenoDTO;
 import com.vetSystem.vet_system.exception.DuplicateResourceException;
 import com.vetSystem.vet_system.exception.InvalidResourceException;
 import com.vetSystem.vet_system.exception.ResourceInUseException;
 import com.vetSystem.vet_system.exception.ResourceNotFoundException;
+import com.vetSystem.vet_system.mapper.DuenoMapper;
 import com.vetSystem.vet_system.model.Dueno;
 import com.vetSystem.vet_system.repository.DuenoRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +20,22 @@ import java.util.List;
 public class DuenoService {
 
     private final DuenoRepository duenoRepository;
+    private final DuenoMapper duenoMapper;
 
     @Transactional(readOnly = true)
-    public List<Dueno> getAllDuenos() {
-        return duenoRepository.findAll();
+    public List<DuenoDTO> getAllDuenos() {
+        return duenoRepository.findAll().stream()
+                .map(duenoMapper::toDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public Dueno getDuenoById(Long id) {
-        return duenoRepository.findByIdWithMascotas(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado"));
+    public DuenoDTO getDuenoById(Long id) {
+        return duenoMapper.toDTO(buscarDueno(id));
     }
 
-    public Dueno createDueno(Dueno datos) {
+    @Transactional
+    public DuenoDTO createDueno(DuenoDTO datos) {
         validarDatos(datos);
         validarTexto("dni", datos.getDni(), true);
         String dni = datos.getDni().strip();
@@ -38,11 +43,12 @@ public class DuenoService {
             throw new DuplicateResourceException("Ya existe un dueño con DNI: " + dni);
         }
 
-        Dueno nuevo = new Dueno();
+        Dueno nuevo = duenoMapper.toEntity(datos);
+        nuevo.setId(null);
         nuevo.setDni(dni);
-        copiarDatosEditables(datos, nuevo);
+        normalizarDatosEditables(nuevo);
         try {
-            return duenoRepository.saveAndFlush(nuevo);
+            return duenoMapper.toDTO(duenoRepository.saveAndFlush(nuevo));
         } catch (DataIntegrityViolationException exception) {
             if (duenoRepository.existsByDni(dni)) {
                 throw new DuplicateResourceException("Ya existe un dueño con DNI: " + dni, exception);
@@ -52,16 +58,21 @@ public class DuenoService {
     }
 
     @Transactional
-    public Dueno updateDueno(Long id, Dueno datos) {
-        Dueno dueno = getDuenoById(id);
+    public DuenoDTO updateDueno(Long id, DuenoDTO datos) {
+        Dueno dueno = buscarDueno(id);
         validarDatos(datos);
-        copiarDatosEditables(datos, dueno);
-        return duenoRepository.save(dueno);
+        dueno.setNombre(datos.getNombre());
+        dueno.setApellido(datos.getApellido());
+        dueno.setTelefono(datos.getTelefono());
+        dueno.setEmail(datos.getEmail());
+        normalizarDatosEditables(dueno);
+        return duenoMapper.toDTO(duenoRepository.save(dueno));
     }
 
     @Transactional
     public void deleteDueno(Long id) {
-        Dueno dueno = getDuenoById(id);
+        Dueno dueno = duenoRepository.findByIdWithMascotas(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado"));
         if (!dueno.getMascotas().isEmpty()) {
             throw new ResourceInUseException("Dueño con id " + id
                     + " tiene registros asociados y no puede eliminarse");
@@ -75,14 +86,19 @@ public class DuenoService {
         }
     }
 
-    private void copiarDatosEditables(Dueno origen, Dueno destino) {
-        destino.setNombre(origen.getNombre().strip());
-        destino.setApellido(origen.getApellido().strip());
-        destino.setTelefono(origen.getTelefono() == null ? null : origen.getTelefono().strip());
-        destino.setEmail(origen.getEmail().strip());
+    private Dueno buscarDueno(Long id) {
+        return duenoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado"));
     }
 
-    private void validarDatos(Dueno datos) {
+    private void normalizarDatosEditables(Dueno dueno) {
+        dueno.setNombre(dueno.getNombre().strip());
+        dueno.setApellido(dueno.getApellido().strip());
+        dueno.setTelefono(dueno.getTelefono() == null ? null : dueno.getTelefono().strip());
+        dueno.setEmail(dueno.getEmail().strip());
+    }
+
+    private void validarDatos(DuenoDTO datos) {
         if (datos == null) {
             throw new InvalidResourceException("Los datos del dueño son obligatorios");
         }

@@ -1,9 +1,11 @@
 package com.vetSystem.vet_system.service;
 
+import com.vetSystem.vet_system.dto.MascotaDTO;
 import com.vetSystem.vet_system.exception.DuplicateResourceException;
 import com.vetSystem.vet_system.exception.InvalidResourceException;
 import com.vetSystem.vet_system.exception.ResourceInUseException;
 import com.vetSystem.vet_system.exception.ResourceNotFoundException;
+import com.vetSystem.vet_system.mapper.MascotaMapper;
 import com.vetSystem.vet_system.model.Dueno;
 import com.vetSystem.vet_system.model.Mascota;
 import com.vetSystem.vet_system.repository.DuenoRepository;
@@ -23,28 +25,32 @@ public class MascotaService {
 
     private final MascotaRepository mascotaRepository;
     private final DuenoRepository duenoRepository;
+    private final MascotaMapper mascotaMapper;
 
     @Transactional(readOnly = true)
-    public List<Mascota> getAllMascotas() {
-        return mascotaRepository.findAll();
+    public List<MascotaDTO> getAllMascotas() {
+        return mascotaRepository.findAll().stream()
+                .map(mascotaMapper::toDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public Mascota getMascotaById(Long id) {
-        return mascotaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mascota con id " + id + " no fue encontrada"));
+    public MascotaDTO getMascotaById(Long id) {
+        return mascotaMapper.toDTO(buscarMascota(id));
     }
 
     @Transactional(readOnly = true)
-    public List<Mascota> getMascotasByDueno(Long duenoId) {
+    public List<MascotaDTO> getMascotasByDueno(Long duenoId) {
         if (!duenoRepository.existsById(duenoId)) {
             throw new ResourceNotFoundException("Dueño con id " + duenoId + " no fue encontrado");
         }
-        return mascotaRepository.findByDuenoId(duenoId);
+        return mascotaRepository.findByDuenoId(duenoId).stream()
+                .map(mascotaMapper::toDTO)
+                .toList();
     }
 
     @Transactional
-    public Mascota createMascota(Long duenoId, Mascota datos) {
+    public MascotaDTO createMascota(Long duenoId, MascotaDTO datos) {
         Dueno dueno = duenoRepository.findById(duenoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + duenoId + " no fue encontrado"));
         validarDatos(datos);
@@ -56,12 +62,12 @@ public class MascotaService {
         Mascota mascota = new Mascota();
         copiarDatosEditables(datos, mascota);
         mascota.setDueno(dueno);
-        return guardarMascota(mascota, nombre, duenoId);
+        return mascotaMapper.toDTO(guardarMascota(mascota, nombre, duenoId));
     }
 
     @Transactional
-    public Mascota updateMascota(Long id, Mascota datos) {
-        Mascota mascota = getMascotaById(id);
+    public MascotaDTO updateMascota(Long id, MascotaDTO datos) {
+        Mascota mascota = buscarMascota(id);
         validarDatos(datos);
         String nombre = datos.getNombre().strip();
         Long duenoId = mascota.getDueno().getId();
@@ -70,12 +76,12 @@ public class MascotaService {
             throw new DuplicateResourceException("Ya existe una mascota con nombre " + nombre + " para el dueño con id " + duenoId);
         }
         copiarDatosEditables(datos, mascota);
-        return guardarMascota(mascota, nombre, duenoId);
+        return mascotaMapper.toDTO(guardarMascota(mascota, nombre, duenoId));
     }
 
     @Transactional
     public void deleteMascota(Long id) {
-        Mascota mascota = getMascotaById(id);
+        Mascota mascota = buscarMascota(id);
         try {
             mascotaRepository.delete(mascota);
             mascotaRepository.flush();
@@ -83,6 +89,11 @@ public class MascotaService {
             throw new ResourceInUseException("Mascota con id " + id
                     + " tiene registros asociados y no puede eliminarse", exception);
         }
+    }
+
+    private Mascota buscarMascota(Long id) {
+        return mascotaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Mascota con id " + id + " no fue encontrada"));
     }
 
     private Mascota guardarMascota(Mascota mascota, String nombre, Long duenoId) {
@@ -110,14 +121,14 @@ public class MascotaService {
         return false;
     }
 
-    private void copiarDatosEditables(Mascota origen, Mascota destino) {
+    private void copiarDatosEditables(MascotaDTO origen, Mascota destino) {
         destino.setNombre(origen.getNombre().strip());
         destino.setEspecie(origen.getEspecie().strip());
         destino.setRaza(origen.getRaza() == null ? null : origen.getRaza().strip());
         destino.setFechaNacimiento(origen.getFechaNacimiento());
     }
 
-    private void validarDatos(Mascota datos) {
+    private void validarDatos(MascotaDTO datos) {
         if (datos == null) {
             throw new InvalidResourceException("Los datos de la mascota son obligatorios");
         }

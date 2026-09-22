@@ -1,6 +1,6 @@
 package com.vetSystem.vet_system.controller;
 
-import com.vetSystem.vet_system.model.Mascota;
+import com.vetSystem.vet_system.dto.MascotaDTO;
 import com.vetSystem.vet_system.service.MascotaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,23 +25,23 @@ public class MascotaController {
     private final MascotaService mascotaService;
 
     @GetMapping
-    public ResponseEntity<List<Mascota>> getAllMascotas() {
+    public ResponseEntity<List<MascotaDTO>> getAllMascotas() {
         return ResponseEntity.ok(mascotaService.getAllMascotas());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mascota> getMascotaById(@PathVariable Long id) {
+    public ResponseEntity<MascotaDTO> getMascotaById(@PathVariable Long id) {
         return ResponseEntity.ok(mascotaService.getMascotaById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Mascota> createMascota(@RequestParam Long duenoId, @RequestBody Mascota mascota) {
-        Mascota nueva = mascotaService.createMascota(duenoId, mascota);
+    public ResponseEntity<MascotaDTO> createMascota(@RequestParam Long duenoId, @RequestBody MascotaDTO mascota) {
+        MascotaDTO nueva = mascotaService.createMascota(duenoId, mascota);
         return ResponseEntity.created(URI.create("/api/mascotas/" + nueva.getId())).body(nueva);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Mascota> updateMascota(@PathVariable Long id, @RequestBody Mascota mascota) {
+    public ResponseEntity<MascotaDTO> updateMascota(@PathVariable Long id, @RequestBody MascotaDTO mascota) {
         return ResponseEntity.ok(mascotaService.updateMascota(id, mascota));
     }
 
