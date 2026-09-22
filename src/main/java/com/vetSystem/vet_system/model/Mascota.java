@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +21,13 @@ import lombok.ToString;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "mascotas")
+@Table(
+        name = "mascotas",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_mascota_dueno_nombre",
+                columnNames = {"dueno_id", "nombre"}
+        )
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,16 +1,16 @@
 {
   "formatVersion": 1,
   "source": "Newman 6.2.2",
-  "executedAt": "2026-09-22T16:38:11.109+00:00",
+  "executedAt": "2026-09-22T16:45:13.560+00:00",
   "collection": "VetSystem - Sprint 03 - CRUD Mascota y relaciones",
   "summary": {
     "requests": {
-      "total": 36,
+      "total": 37,
       "pending": 0,
       "failed": 0
     },
     "assertions": {
-      "total": 70,
+      "total": 72,
       "pending": 0,
       "failed": 0
     },
@@ -23,7 +23,7 @@
       "url": "http://localhost:8080/api/duenos",
       "status": 201,
       "body": {
-        "id": 1,
+        "id": 2,
         "nombre": "Carlos",
         "apellido": "González",
         "dni": "28543210",
@@ -57,7 +57,7 @@
       "status": 200,
       "body": [
         {
-          "id": 1,
+          "id": 2,
           "nombre": "Carlos",
           "apellido": "González",
           "dni": "28543210",
@@ -80,10 +80,10 @@
     {
       "name": "03 Obtener dueño por ID",
       "method": "GET",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 2,
         "nombre": "Carlos",
         "apellido": "González",
         "dni": "28543210",
@@ -143,10 +143,10 @@
     {
       "name": "06 Actualizar dueño sin enviar DNI",
       "method": "PUT",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 2,
         "nombre": "Carlos Alberto",
         "apellido": "González",
         "dni": "28543210",
@@ -168,10 +168,10 @@
     {
       "name": "07 Comprobar actualización persistida",
       "method": "GET",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 2,
         "nombre": "Carlos Alberto",
         "apellido": "González",
         "dni": "28543210",
@@ -193,10 +193,10 @@
     {
       "name": "08 Conservar ID y DNI aunque se envíen otros",
       "method": "PUT",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 2,
         "nombre": "Carlos Alberto",
         "apellido": "González",
         "dni": "28543210",
@@ -256,15 +256,15 @@
     {
       "name": "11 Crear Firulais",
       "method": "POST",
-      "url": "http://localhost:8080/api/mascotas?duenoId=1",
+      "url": "http://localhost:8080/api/mascotas?duenoId=2",
       "status": 201,
       "body": {
-        "id": 1,
+        "id": 56,
         "nombre": "Firulais",
         "especie": "perro",
         "raza": "labrador",
         "fechaNacimiento": "2021-03-15",
-        "duenoId": 1
+        "duenoId": 2
       },
       "assertions": [
         {
@@ -288,15 +288,15 @@
     {
       "name": "12 Crear Michi",
       "method": "POST",
-      "url": "http://localhost:8080/api/mascotas?duenoId=1",
+      "url": "http://localhost:8080/api/mascotas?duenoId=2",
       "status": 201,
       "body": {
-        "id": 2,
+        "id": 57,
         "nombre": "Michi",
         "especie": "gato",
         "raza": "siamés",
         "fechaNacimiento": "2022-07-20",
-        "duenoId": 1
+        "duenoId": 2
       },
       "assertions": [
         {
@@ -310,12 +310,31 @@
       ]
     },
     {
-      "name": "13 Crear segundo dueño",
+      "name": "13 Rechazar nombre duplicado al actualizar mascota",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/mascotas/57",
+      "status": 409,
+      "body": {
+        "mensaje": "Ya existe una mascota con nombre Firulais para el dueño con id 2"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Nombre duplicado informado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "14 Crear segundo dueño",
       "method": "POST",
       "url": "http://localhost:8080/api/duenos",
       "status": 201,
       "body": {
-        "id": 2,
+        "id": 3,
         "nombre": "Ana",
         "apellido": "Martínez",
         "dni": "30112233",
@@ -335,17 +354,17 @@
       ]
     },
     {
-      "name": "14 Crear mascota del segundo dueño",
+      "name": "15 Crear mascota del segundo dueño",
       "method": "POST",
-      "url": "http://localhost:8080/api/mascotas?duenoId=2",
+      "url": "http://localhost:8080/api/mascotas?duenoId=3",
       "status": 201,
       "body": {
-        "id": 3,
+        "id": 58,
         "nombre": "Rex",
         "especie": "perro",
         "raza": "pastor",
         "fechaNacimiento": "2020-01-01",
-        "duenoId": 2
+        "duenoId": 3
       },
       "assertions": [
         {
@@ -359,34 +378,34 @@
       ]
     },
     {
-      "name": "15 Listar todas las mascotas",
+      "name": "16 Listar todas las mascotas",
       "method": "GET",
       "url": "http://localhost:8080/api/mascotas",
       "status": 200,
       "body": [
         {
-          "id": 1,
+          "id": 56,
           "nombre": "Firulais",
           "especie": "perro",
           "raza": "labrador",
           "fechaNacimiento": "2021-03-15",
-          "duenoId": 1
+          "duenoId": 2
         },
         {
-          "id": 2,
+          "id": 57,
           "nombre": "Michi",
           "especie": "gato",
           "raza": "siamés",
           "fechaNacimiento": "2022-07-20",
-          "duenoId": 1
+          "duenoId": 2
         },
         {
-          "id": 3,
+          "id": 58,
           "nombre": "Rex",
           "especie": "perro",
           "raza": "pastor",
           "fechaNacimiento": "2020-01-01",
-          "duenoId": 2
+          "duenoId": 3
         }
       ],
       "assertions": [
@@ -405,17 +424,17 @@
       ]
     },
     {
-      "name": "16 Obtener mascota por ID",
+      "name": "17 Obtener mascota por ID",
       "method": "GET",
-      "url": "http://localhost:8080/api/mascotas/1",
+      "url": "http://localhost:8080/api/mascotas/56",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 56,
         "nombre": "Firulais",
         "especie": "perro",
         "raza": "labrador",
         "fechaNacimiento": "2021-03-15",
-        "duenoId": 1
+        "duenoId": 2
       },
       "assertions": [
         {
@@ -429,26 +448,26 @@
       ]
     },
     {
-      "name": "17 Listar mascotas del primer dueño",
+      "name": "18 Listar mascotas del primer dueño",
       "method": "GET",
-      "url": "http://localhost:8080/api/duenos/1/mascotas",
+      "url": "http://localhost:8080/api/duenos/2/mascotas",
       "status": 200,
       "body": [
         {
-          "id": 1,
+          "id": 56,
           "nombre": "Firulais",
           "especie": "perro",
           "raza": "labrador",
           "fechaNacimiento": "2021-03-15",
-          "duenoId": 1
+          "duenoId": 2
         },
         {
-          "id": 2,
+          "id": 57,
           "nombre": "Michi",
           "especie": "gato",
           "raza": "siamés",
           "fechaNacimiento": "2022-07-20",
-          "duenoId": 1
+          "duenoId": 2
         }
       ],
       "assertions": [
@@ -467,18 +486,18 @@
       ]
     },
     {
-      "name": "18 Listar mascotas del segundo dueño",
+      "name": "19 Listar mascotas del segundo dueño",
       "method": "GET",
-      "url": "http://localhost:8080/api/duenos/2/mascotas",
+      "url": "http://localhost:8080/api/duenos/3/mascotas",
       "status": 200,
       "body": [
         {
-          "id": 3,
+          "id": 58,
           "nombre": "Rex",
           "especie": "perro",
           "raza": "pastor",
           "fechaNacimiento": "2020-01-01",
-          "duenoId": 2
+          "duenoId": 3
         }
       ],
       "assertions": [
@@ -493,12 +512,12 @@
       ]
     },
     {
-      "name": "19 Obtener dueño con mascotas",
+      "name": "20 Obtener dueño con mascotas",
       "method": "GET",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 2,
         "nombre": "Carlos Alberto",
         "apellido": "González",
         "dni": "28543210",
@@ -506,20 +525,20 @@
         "email": "carlos.nuevo@example.com",
         "mascotas": [
           {
-            "id": 1,
+            "id": 56,
             "nombre": "Firulais",
             "especie": "perro",
             "raza": "labrador",
             "fechaNacimiento": "2021-03-15",
-            "duenoId": 1
+            "duenoId": 2
           },
           {
-            "id": 2,
+            "id": 57,
             "nombre": "Michi",
             "especie": "gato",
             "raza": "siamés",
             "fechaNacimiento": "2022-07-20",
-            "duenoId": 1
+            "duenoId": 2
           }
         ]
       },
@@ -539,7 +558,7 @@
       ]
     },
     {
-      "name": "20 Rechazar dueño inexistente al crear mascota",
+      "name": "21 Rechazar dueño inexistente al crear mascota",
       "method": "POST",
       "url": "http://localhost:8080/api/mascotas?duenoId=999",
       "status": 404,
@@ -558,7 +577,7 @@
       ]
     },
     {
-      "name": "21 Rechazar consulta anidada de dueño inexistente",
+      "name": "22 Rechazar consulta anidada de dueño inexistente",
       "method": "GET",
       "url": "http://localhost:8080/api/duenos/999/mascotas",
       "status": 404,
@@ -573,12 +592,12 @@
       ]
     },
     {
-      "name": "22 Rechazar mascota duplicada del mismo dueño",
+      "name": "23 Rechazar mascota duplicada del mismo dueño",
       "method": "POST",
-      "url": "http://localhost:8080/api/mascotas?duenoId=1",
+      "url": "http://localhost:8080/api/mascotas?duenoId=2",
       "status": 409,
       "body": {
-        "mensaje": "Ya existe una mascota con nombre Firulais para el dueño con id 1"
+        "mensaje": "Ya existe una mascota con nombre Firulais para el dueño con id 2"
       },
       "assertions": [
         {
@@ -588,7 +607,7 @@
       ]
     },
     {
-      "name": "23 Rechazar mascota inexistente",
+      "name": "24 Rechazar mascota inexistente",
       "method": "GET",
       "url": "http://localhost:8080/api/mascotas/999",
       "status": 404,
@@ -603,17 +622,17 @@
       ]
     },
     {
-      "name": "24 Actualizar mascota",
+      "name": "25 Actualizar mascota",
       "method": "PUT",
-      "url": "http://localhost:8080/api/mascotas/1",
+      "url": "http://localhost:8080/api/mascotas/56",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 56,
         "nombre": "Firulais Actualizado",
         "especie": "perro",
         "raza": "mestizo",
         "fechaNacimiento": "2021-03-15",
-        "duenoId": 1
+        "duenoId": 2
       },
       "assertions": [
         {
@@ -627,17 +646,17 @@
       ]
     },
     {
-      "name": "25 Comprobar actualización de mascota",
+      "name": "26 Comprobar actualización de mascota",
       "method": "GET",
-      "url": "http://localhost:8080/api/mascotas/1",
+      "url": "http://localhost:8080/api/mascotas/56",
       "status": 200,
       "body": {
-        "id": 1,
+        "id": 56,
         "nombre": "Firulais Actualizado",
         "especie": "perro",
         "raza": "mestizo",
         "fechaNacimiento": "2021-03-15",
-        "duenoId": 1
+        "duenoId": 2
       },
       "assertions": [
         {
@@ -651,7 +670,7 @@
       ]
     },
     {
-      "name": "26 Rechazar actualización de mascota inexistente",
+      "name": "27 Rechazar actualización de mascota inexistente",
       "method": "PUT",
       "url": "http://localhost:8080/api/mascotas/999",
       "status": 404,
@@ -666,12 +685,12 @@
       ]
     },
     {
-      "name": "27 Rechazar eliminación de dueño con mascotas",
+      "name": "28 Rechazar eliminación de dueño con mascotas",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 409,
       "body": {
-        "mensaje": "Dueño con id 1 tiene registros asociados y no puede eliminarse"
+        "mensaje": "Dueño con id 2 tiene registros asociados y no puede eliminarse"
       },
       "assertions": [
         {
@@ -685,9 +704,9 @@
       ]
     },
     {
-      "name": "28 Eliminar Firulais",
+      "name": "29 Eliminar Firulais",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/mascotas/1",
+      "url": "http://localhost:8080/api/mascotas/56",
       "status": 204,
       "body": null,
       "assertions": [
@@ -698,9 +717,9 @@
       ]
     },
     {
-      "name": "29 Eliminar Michi",
+      "name": "30 Eliminar Michi",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/mascotas/2",
+      "url": "http://localhost:8080/api/mascotas/57",
       "status": 204,
       "body": null,
       "assertions": [
@@ -711,9 +730,9 @@
       ]
     },
     {
-      "name": "30 Eliminar Rex",
+      "name": "31 Eliminar Rex",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/mascotas/3",
+      "url": "http://localhost:8080/api/mascotas/58",
       "status": 204,
       "body": null,
       "assertions": [
@@ -724,7 +743,7 @@
       ]
     },
     {
-      "name": "31 Rechazar eliminación de mascota inexistente",
+      "name": "32 Rechazar eliminación de mascota inexistente",
       "method": "DELETE",
       "url": "http://localhost:8080/api/mascotas/999",
       "status": 404,
@@ -739,9 +758,9 @@
       ]
     },
     {
-      "name": "32 Eliminar segundo dueño",
+      "name": "33 Eliminar segundo dueño",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/duenos/2",
+      "url": "http://localhost:8080/api/duenos/3",
       "status": 204,
       "body": null,
       "assertions": [
@@ -752,9 +771,9 @@
       ]
     },
     {
-      "name": "33 Eliminar dueño",
+      "name": "34 Eliminar dueño",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 204,
       "body": null,
       "assertions": [
@@ -769,12 +788,12 @@
       ]
     },
     {
-      "name": "34 Repetir eliminación",
+      "name": "35 Repetir eliminación",
       "method": "DELETE",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 404,
       "body": {
-        "mensaje": "Dueño con id 1 no fue encontrado"
+        "mensaje": "Dueño con id 2 no fue encontrado"
       },
       "assertions": [
         {
@@ -788,12 +807,12 @@
       ]
     },
     {
-      "name": "35 Consultar dueño eliminado",
+      "name": "36 Consultar dueño eliminado",
       "method": "GET",
-      "url": "http://localhost:8080/api/duenos/1",
+      "url": "http://localhost:8080/api/duenos/2",
       "status": 404,
       "body": {
-        "mensaje": "Dueño con id 1 no fue encontrado"
+        "mensaje": "Dueño con id 2 no fue encontrado"
       },
       "assertions": [
         {
@@ -807,7 +826,7 @@
       ]
     },
     {
-      "name": "36 Verificar listado final",
+      "name": "37 Verificar listado final",
       "method": "GET",
       "url": "http://localhost:8080/api/duenos",
       "status": 200,

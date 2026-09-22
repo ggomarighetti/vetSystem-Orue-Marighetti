@@ -410,7 +410,41 @@
       ]
     },
     {
-      "name": "13 Crear segundo dueño",
+      "name": "13 Rechazar nombre duplicado al actualizar mascota",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas/{{segundaMascotaId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Firulais\",\n  \"especie\": \"gato\",\n  \"raza\": \"siamés\",\n  \"fechaNacimiento\": \"2022-07-20\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+              "pm.test(\"Nombre duplicado informado\", () => pm.expect(pm.response.json().mensaje).to.include(\"Firulais\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Crear segundo dueño",
       "request": {
         "method": "POST",
         "header": [
@@ -446,7 +480,7 @@
       ]
     },
     {
-      "name": "14 Crear mascota del segundo dueño",
+      "name": "15 Crear mascota del segundo dueño",
       "request": {
         "method": "POST",
         "header": [
@@ -482,7 +516,7 @@
       ]
     },
     {
-      "name": "15 Listar todas las mascotas",
+      "name": "16 Listar todas las mascotas",
       "request": {
         "method": "GET",
         "header": [],
@@ -504,7 +538,7 @@
       ]
     },
     {
-      "name": "16 Obtener mascota por ID",
+      "name": "17 Obtener mascota por ID",
       "request": {
         "method": "GET",
         "header": [],
@@ -524,7 +558,7 @@
       ]
     },
     {
-      "name": "17 Listar mascotas del primer dueño",
+      "name": "18 Listar mascotas del primer dueño",
       "request": {
         "method": "GET",
         "header": [],
@@ -546,7 +580,7 @@
       ]
     },
     {
-      "name": "18 Listar mascotas del segundo dueño",
+      "name": "19 Listar mascotas del segundo dueño",
       "request": {
         "method": "GET",
         "header": [],
@@ -567,7 +601,7 @@
       ]
     },
     {
-      "name": "19 Obtener dueño con mascotas",
+      "name": "20 Obtener dueño con mascotas",
       "request": {
         "method": "GET",
         "header": [],
@@ -589,7 +623,7 @@
       ]
     },
     {
-      "name": "20 Rechazar dueño inexistente al crear mascota",
+      "name": "21 Rechazar dueño inexistente al crear mascota",
       "request": {
         "method": "POST",
         "header": [
@@ -623,7 +657,7 @@
       ]
     },
     {
-      "name": "21 Rechazar consulta anidada de dueño inexistente",
+      "name": "22 Rechazar consulta anidada de dueño inexistente",
       "request": {
         "method": "GET",
         "header": [],
@@ -642,7 +676,7 @@
       ]
     },
     {
-      "name": "22 Rechazar mascota duplicada del mismo dueño",
+      "name": "23 Rechazar mascota duplicada del mismo dueño",
       "request": {
         "method": "POST",
         "header": [
@@ -675,7 +709,7 @@
       ]
     },
     {
-      "name": "23 Rechazar mascota inexistente",
+      "name": "24 Rechazar mascota inexistente",
       "request": {
         "method": "GET",
         "header": [],
@@ -694,7 +728,7 @@
       ]
     },
     {
-      "name": "24 Actualizar mascota",
+      "name": "25 Actualizar mascota",
       "request": {
         "method": "PUT",
         "header": [
@@ -729,7 +763,7 @@
       ]
     },
     {
-      "name": "25 Comprobar actualización de mascota",
+      "name": "26 Comprobar actualización de mascota",
       "request": {
         "method": "GET",
         "header": [],
@@ -749,7 +783,7 @@
       ]
     },
     {
-      "name": "26 Rechazar actualización de mascota inexistente",
+      "name": "27 Rechazar actualización de mascota inexistente",
       "request": {
         "method": "PUT",
         "header": [
@@ -782,7 +816,7 @@
       ]
     },
     {
-      "name": "27 Rechazar eliminación de dueño con mascotas",
+      "name": "28 Rechazar eliminación de dueño con mascotas",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -802,7 +836,7 @@
       ]
     },
     {
-      "name": "28 Eliminar Firulais",
+      "name": "29 Eliminar Firulais",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -821,7 +855,7 @@
       ]
     },
     {
-      "name": "29 Eliminar Michi",
+      "name": "30 Eliminar Michi",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -840,7 +874,7 @@
       ]
     },
     {
-      "name": "30 Eliminar Rex",
+      "name": "31 Eliminar Rex",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -859,7 +893,7 @@
       ]
     },
     {
-      "name": "31 Rechazar eliminación de mascota inexistente",
+      "name": "32 Rechazar eliminación de mascota inexistente",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -878,7 +912,7 @@
       ]
     },
     {
-      "name": "32 Eliminar segundo dueño",
+      "name": "33 Eliminar segundo dueño",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -897,7 +931,7 @@
       ]
     },
     {
-      "name": "33 Eliminar dueño",
+      "name": "34 Eliminar dueño",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -917,7 +951,7 @@
       ]
     },
     {
-      "name": "34 Repetir eliminación",
+      "name": "35 Repetir eliminación",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -937,7 +971,7 @@
       ]
     },
     {
-      "name": "35 Consultar dueño eliminado",
+      "name": "36 Consultar dueño eliminado",
       "request": {
         "method": "GET",
         "header": [],
@@ -957,7 +991,7 @@
       ]
     },
     {
-      "name": "36 Verificar listado final",
+      "name": "37 Verificar listado final",
       "request": {
         "method": "GET",
         "header": [],

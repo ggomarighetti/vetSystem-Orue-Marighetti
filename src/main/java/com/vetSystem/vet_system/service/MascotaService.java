@@ -9,11 +9,13 @@ import com.vetSystem.vet_system.model.Mascota;
 import com.vetSystem.vet_system.repository.DuenoRepository;
 import com.vetSystem.vet_system.repository.MascotaRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class MascotaService {
         Mascota mascota = new Mascota();
         copiarDatosEditables(datos, mascota);
         mascota.setDueno(dueno);
-        return mascotaRepository.save(mascota);
+        return guardarMascota(mascota, nombre, duenoId);
     }
 
     @Transactional
@@ -68,7 +70,7 @@ public class MascotaService {
             throw new DuplicateResourceException("Ya existe una mascota con nombre " + nombre + " para el dueño con id " + duenoId);
         }
         copiarDatosEditables(datos, mascota);
-        return mascotaRepository.save(mascota);
+        return guardarMascota(mascota, nombre, duenoId);
     }
 
     @Transactional
@@ -81,6 +83,31 @@ public class MascotaService {
             throw new ResourceInUseException("Mascota con id " + id
                     + " tiene registros asociados y no puede eliminarse", exception);
         }
+    }
+
+    private Mascota guardarMascota(Mascota mascota, String nombre, Long duenoId) {
+        try {
+            return mascotaRepository.saveAndFlush(mascota);
+        } catch (DataIntegrityViolationException exception) {
+            if (esNombreDuplicado(exception)) {
+                throw new DuplicateResourceException("Ya existe una mascota con nombre " + nombre
+                        + " para el dueño con id " + duenoId, exception);
+            }
+            throw exception;
+        }
+    }
+
+    private boolean esNombreDuplicado(Throwable exception) {
+        Throwable causa = exception;
+        while (causa != null) {
+            if (causa instanceof ConstraintViolationException violacion
+                    && violacion.getConstraintName() != null
+                    && violacion.getConstraintName().toLowerCase(Locale.ROOT).contains("uk_mascota_dueno_nombre")) {
+                return true;
+            }
+            causa = causa.getCause();
+        }
+        return false;
     }
 
     private void copiarDatosEditables(Mascota origen, Mascota destino) {

@@ -80,13 +80,13 @@ El DNI se conserva al actualizar. Desde el sprint 03, las consultas de dueños i
 
 ## API de mascotas — Sprint 03
 
-La API expone `GET /api/mascotas`, `GET /api/mascotas/{id}`, `POST /api/mascotas?duenoId={id}`, `PUT /api/mascotas/{id}` y `DELETE /api/mascotas/{id}`. Para crear una mascota, el dueño debe existir; si no existe, la API responde 404. El nombre de una mascota no puede repetirse para el mismo dueño y un duplicado responde 409.
+La API expone `GET /api/mascotas`, `GET /api/mascotas/{id}`, `POST /api/mascotas?duenoId={id}`, `PUT /api/mascotas/{id}` y `DELETE /api/mascotas/{id}`. Para crear una mascota, el dueño debe existir; si no existe, la API responde 404. El nombre de una mascota no puede repetirse para el mismo dueño: una restricción única sobre `dueno_id` y `nombre` también evita duplicados ante solicitudes concurrentes, y el conflicto responde 409.
 
 `GET /api/duenos/{id}/mascotas` devuelve solo las mascotas de ese dueño y responde 404 si no existe. `GET /api/duenos/{id}` incluye la lista de mascotas. Las respuestas de Mascota muestran `duenoId` y omiten el objeto `dueno` para evitar el JSON circular. El DELETE de un dueño con mascotas conserva la respuesta 409 y no elimina las asociaciones.
 
 - [Consigna del sprint 03](docs/sprints/Sprint_03_JPA_Relaciones_CRUD_Mascota.docx).
-- [Colección de Postman con 36 solicitudes](docs/evidencias/sprint-03/sprint-03-mascotas.postman_collection.json).
-- [Resultados de Newman con 70 verificaciones aprobadas](docs/evidencias/sprint-03/sprint-03-mascotas.newman-results.json).
+- [Colección de Postman con 37 solicitudes](docs/evidencias/sprint-03/sprint-03-mascotas.postman_collection.json).
+- [Resultados de Newman con 72 verificaciones aprobadas](docs/evidencias/sprint-03/sprint-03-mascotas.newman-results.json).
 
 Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla en el orden guardado. La colección crea dos dueños y tres mascotas, comprueba las respuestas y elimina los datos de ejemplo al finalizar.
 
