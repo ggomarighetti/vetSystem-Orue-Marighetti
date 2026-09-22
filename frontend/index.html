@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dueños | Patitas Felices</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+      <span class="navbar-brand mb-0 h1">Patitas Felices</span>
+      <span class="navbar-text text-white">Clínica veterinaria</span>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+      <div>
+        <h1 class="h2 mb-1">Dueños</h1>
+        <p class="text-secondary mb-0">Consultá y registrá los contactos de la clínica.</p>
+      </div>
+      <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#nuevoDuenoModal">Nuevo dueño</button>
+    </div>
+
+    <div id="listaError" class="alert alert-danger d-none" role="alert" aria-live="polite"></div>
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Apellido</th>
+              <th scope="col">DNI</th>
+              <th scope="col">Teléfono</th>
+              <th scope="col">Email</th>
+            </tr>
+          </thead>
+          <tbody id="duenosTabla">
+            <tr><td colspan="5" class="text-center text-secondary py-4">Cargando dueños…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="nuevoDuenoModal" tabindex="-1" aria-labelledby="nuevoDuenoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="duenoFormulario" novalidate>
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="nuevoDuenoTitulo">Nuevo dueño</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input id="nombre" name="nombre" class="form-control" autocomplete="given-name" required>
+              </div>
+              <div class="col-sm-6">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input id="apellido" name="apellido" class="form-control" autocomplete="family-name" required>
+              </div>
+              <div class="col-sm-6">
+                <label for="dni" class="form-label">DNI</label>
+                <input id="dni" name="dni" class="form-control" inputmode="numeric" required>
+              </div>
+              <div class="col-sm-6">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input id="telefono" name="telefono" class="form-control" autocomplete="tel">
+              </div>
+              <div class="col-12">
+                <label for="email" class="form-label">Email</label>
+                <input id="email" name="email" type="email" class="form-control" autocomplete="email" required>
+              </div>
+            </div>
+            <div id="formularioError" class="alert alert-danger d-none mt-3 mb-0" role="alert" aria-live="polite"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button id="guardarDueno" type="submit" class="btn btn-primary">Guardar dueño</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script>
+    const apiUrl = "http://localhost:8080/api/duenos";
+    const tabla = document.getElementById("duenosTabla");
+    const listaError = document.getElementById("listaError");
+    const formulario = document.getElementById("duenoFormulario");
+    const formularioError = document.getElementById("formularioError");
+    const guardarDueno = document.getElementById("guardarDueno");
+    const modal = document.getElementById("nuevoDuenoModal");
+
+    function mostrarError(elemento, mensaje) {
+      elemento.textContent = mensaje;
+      elemento.classList.remove("d-none");
+    }
+
+    function ocultarError(elemento) {
+      elemento.textContent = "";
+      elemento.classList.add("d-none");
+    }
+
+    async function leerRespuesta(respuesta) {
+      const datos = await respuesta.json().catch(() => null);
+      if (!respuesta.ok) {
+        throw new Error(datos?.mensaje || `La API respondió con HTTP ${respuesta.status}.`);
+      }
+      return datos;
+    }
+
+    function mostrarDuenos(duenos) {
+      tabla.replaceChildren();
+      if (duenos.length === 0) {
+        const fila = tabla.insertRow();
+        const celda = fila.insertCell();
+        celda.colSpan = 5;
+        celda.className = "text-center text-secondary py-4";
+        celda.textContent = "Todavía no hay dueños registrados.";
+        return;
+      }
+      for (const dueno of duenos) {
+        const fila = tabla.insertRow();
+        for (const valor of [dueno.nombre, dueno.apellido, dueno.dni, dueno.telefono, dueno.email]) {
+          fila.insertCell().textContent = valor || "—";
+        }
+      }
+    }
+
+    async function cargarDuenos() {
+      ocultarError(listaError);
+      try {
+        const respuesta = await fetch(apiUrl);
+        const duenos = await leerRespuesta(respuesta);
+        mostrarDuenos(duenos);
+      } catch (error) {
+        mostrarError(listaError, error.message || "No se pudo conectar con la API.");
+      }
+    }
+
+    formulario.addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      ocultarError(formularioError);
+      guardarDueno.disabled = true;
+      const datos = Object.fromEntries(new FormData(formulario).entries());
+      try {
+        const respuesta = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datos)
+        });
+        await leerRespuesta(respuesta);
+        bootstrap.Modal.getOrCreateInstance(modal).hide();
+        formulario.reset();
+        await cargarDuenos();
+      } catch (error) {
+        mostrarError(formularioError, error.message || "No se pudo conectar con la API.");
+      } finally {
+        guardarDueno.disabled = false;
+      }
+    });
+
+    modal.addEventListener("hidden.bs.modal", () => ocultarError(formularioError));
+    document.addEventListener("DOMContentLoaded", cargarDuenos);
+  </script>
+</body>
+</html>

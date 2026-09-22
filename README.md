@@ -133,6 +133,15 @@ Para verificar la suite desde cero:
 - [Consigna del sprint 06](docs/sprints/Sprint_06_Testing_JUnit_Mockito_MockMvc.docx).
 - [Resultados y verificaciones de la suite](docs/evidencias/sprint-06/README.md).
 
+## Swagger y frontend — Sprint 07
+
+Con la aplicación en ejecución, la documentación interactiva está en `http://localhost:8080/swagger-ui.html` y la especificación OpenAPI en `http://localhost:8080/v3/api-docs`. Swagger agrupa las operaciones por recurso y describe parámetros, respuestas y ejemplos de los DTO de entrada.
+
+El frontend está en [frontend/index.html](frontend/index.html). Para usarlo con Live Server, abrir ese archivo en VS Code y servirlo en `http://localhost:5500`; también se puede servir la carpeta `frontend/` con un servidor HTTP estático. El backend debe estar disponible en `http://localhost:8080`. La página consulta la lista de dueños al cargar, permite registrar uno desde el modal y muestra los mensajes de error que devuelve la API. CORS acepta todos los orígenes, métodos y headers para este entorno de desarrollo.
+
+- [Consigna del sprint 07](docs/sprints/Sprint_07_Swagger_Frontend_Analisis.docx).
+- [Análisis técnico del monolito](docs/analisis-monolito.md).
+
 ## Documentación
 
 ![Diagrama de dominio de VetSystem](docs/evidencias/sprint-01/sprint-01-diagrama-dominio.png)
@@ -162,3 +171,4 @@ El resumen usa `formatVersion: 1` e incluye herramienta de origen, fecha de ejec
 - `sprint-04`: DTOs con MapStruct y API REST de veterinarios y turnos.
 - `sprint-05`: validaciones de entrada y manejo global de errores.
 - `sprint-06`: pruebas unitarias de servicios y pruebas de la capa web con MockMvc.
+- `sprint-07`: documentación OpenAPI, frontend de dueños y análisis del monolito.
