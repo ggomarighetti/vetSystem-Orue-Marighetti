@@ -10,9 +10,13 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
+import static com.vetSystem.vet_system.support.DuenoTestData.datosValidos;
+import static com.vetSystem.vet_system.support.DuenoTestData.duenoExistente;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -28,6 +32,9 @@ class DuenoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private DuenoService duenoService;
@@ -78,7 +85,7 @@ class DuenoControllerTest {
 
         mockMvc.perform(post("/api/duenos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonValido()))
+                        .content(objectMapper.writeValueAsString(datosValidos())))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/duenos/1"))
                 .andExpect(jsonPath("$.id").value(1))
@@ -89,11 +96,12 @@ class DuenoControllerTest {
 
     @Test
     void createDueno_cuandoEmailVacio_retorna400SinInvocarServicio() throws Exception {
-        String jsonInvalido = jsonValido().replace("carlos@example.com", "");
+        ObjectNode datos = objectMapper.valueToTree(datosValidos());
+        datos.put("email", "");
 
         mockMvc.perform(post("/api/duenos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonInvalido))
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.mensaje").value("email: El email es obligatorio"))
@@ -102,19 +110,4 @@ class DuenoControllerTest {
         verifyNoInteractions(duenoService);
     }
 
-    private DuenoDTO duenoExistente() {
-        return new DuenoDTO(1L, "Carlos", "Pérez", "12345678", "1122334455", "carlos@example.com");
-    }
-
-    private String jsonValido() {
-        return """
-                {
-                  "nombre": "Carlos",
-                  "apellido": "Pérez",
-                  "dni": "12345678",
-                  "telefono": "1122334455",
-                  "email": "carlos@example.com"
-                }
-                """;
-    }
 }

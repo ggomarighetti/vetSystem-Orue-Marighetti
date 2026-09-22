@@ -16,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.vetSystem.vet_system.support.DuenoTestData.datosValidos;
+import static com.vetSystem.vet_system.support.DuenoTestData.duenoExistente;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,8 +55,7 @@ class DuenoServiceTest {
     void getAllDuenos_cuandoHayDatos_retornaDTOs() {
         Dueno dueno = new Dueno();
         dueno.setId(1L);
-        DuenoDTO dto = datosValidos();
-        dto.setId(1L);
+        DuenoDTO dto = duenoExistente();
         when(duenoRepository.findAll()).thenReturn(List.of(dueno));
         when(duenoMapper.toDTO(dueno)).thenReturn(dto);
 
@@ -69,8 +70,7 @@ class DuenoServiceTest {
     void getDuenoById_cuandoExiste_retornaDTO() {
         Dueno dueno = new Dueno();
         dueno.setId(1L);
-        DuenoDTO dto = datosValidos();
-        dto.setId(1L);
+        DuenoDTO dto = duenoExistente();
         when(duenoRepository.findById(1L)).thenReturn(Optional.of(dueno));
         when(duenoMapper.toDTO(dueno)).thenReturn(dto);
 
@@ -109,8 +109,7 @@ class DuenoServiceTest {
         nuevo.setEmail(datos.getEmail());
         Dueno guardado = new Dueno();
         guardado.setId(1L);
-        DuenoDTO respuesta = datosValidos();
-        respuesta.setId(1L);
+        DuenoDTO respuesta = duenoExistente();
         when(duenoRepository.existsByDni("12345678")).thenReturn(false);
         when(duenoMapper.toEntity(datos)).thenReturn(nuevo);
         when(duenoRepository.saveAndFlush(any(Dueno.class))).thenReturn(guardado);
@@ -142,7 +141,4 @@ class DuenoServiceTest {
         verifyNoInteractions(duenoMapper);
     }
 
-    private DuenoDTO datosValidos() {
-        return new DuenoDTO(null, "Carlos", "Pérez", "12345678", "1122334455", "carlos@example.com");
-    }
 }
