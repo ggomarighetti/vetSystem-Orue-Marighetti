@@ -1,0 +1,97 @@
+(node:45168) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+newman
+
+VetSystem - Sprint 02 - CRUD Dueño
+
+→ 01 Crear dueño
+  POST http://127.0.0.1:8082/api/duenos [201 Created, 322B, 391ms]
+  √  HTTP 201
+  √  ID generado
+  √  DNI guardado
+  √  Ubicación del recurso
+
+→ 02 Listar dueños
+  GET http://127.0.0.1:8082/api/duenos [200 OK, 294B, 9ms]
+  √  HTTP 200
+  √  Incluye el dueño creado
+
+→ 03 Obtener dueño por ID
+  GET http://127.0.0.1:8082/api/duenos/1 [200 OK, 292B, 11ms]
+  √  HTTP 200
+  √  Datos del dueño
+
+→ 04 Consultar dueño inexistente
+  GET http://127.0.0.1:8082/api/duenos/999 [404 Not Found, 220B, 12ms]
+  √  HTTP 404
+  √  Mensaje descriptivo
+
+→ 05 Rechazar DNI duplicado
+  POST http://127.0.0.1:8082/api/duenos [409 Conflict, 221B, 6ms]
+  √  HTTP 409
+  √  Conflicto de DNI
+
+→ 06 Actualizar dueño sin enviar DNI
+  PUT http://127.0.0.1:8082/api/duenos/1 [200 OK, 297B, 15ms]
+  √  HTTP 200
+  √  Datos actualizados y DNI conservado
+
+→ 07 Comprobar actualización persistida
+  GET http://127.0.0.1:8082/api/duenos/1 [200 OK, 297B, 4ms]
+  √  HTTP 200
+  √  Cambio persistido
+
+→ 08 Conservar ID y DNI aunque se envíen otros
+  PUT http://127.0.0.1:8082/api/duenos/1 [200 OK, 297B, 5ms]
+  √  HTTP 200
+  √  ID y DNI inmutables
+
+→ 09 Rechazar datos incompletos
+  POST http://127.0.0.1:8082/api/duenos [400 Bad Request, 188B, 3ms]
+  √  HTTP 400
+  √  Campo obligatorio informado
+
+→ 10 Actualizar dueño inexistente
+  PUT http://127.0.0.1:8082/api/duenos/999 [404 Not Found, 220B, 7ms]
+  √  HTTP 404
+  √  Mensaje de recurso inexistente
+
+→ 11 Eliminar dueño
+  DELETE http://127.0.0.1:8082/api/duenos/1 [204 No Content, 112B, 14ms]
+  √  HTTP 204
+  √  Respuesta sin cuerpo
+
+→ 12 Repetir eliminación
+  DELETE http://127.0.0.1:8082/api/duenos/1 [404 Not Found, 218B, 5ms]
+  √  HTTP 404
+  √  No se puede borrar dos veces
+
+→ 13 Consultar dueño eliminado
+  GET http://127.0.0.1:8082/api/duenos/1 [404 Not Found, 218B, 6ms]
+  √  HTTP 404
+  √  El dueño dejó de existir
+
+→ 14 Verificar listado final
+  GET http://127.0.0.1:8082/api/duenos [200 OK, 166B, 5ms]
+  √  HTTP 200
+  √  El listado no incluye el dueño eliminado
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                14 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                14 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 0 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                30 │                0 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 1653ms                                     │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 1.07kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 35ms [min: 3ms, max: 391ms, s.d.: 98ms] │
+└────────────────────────────────────────────────────────────────┘
