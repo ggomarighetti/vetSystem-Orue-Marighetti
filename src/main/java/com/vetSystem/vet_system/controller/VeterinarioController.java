@@ -2,6 +2,12 @@ package com.vetSystem.vet_system.controller;
 
 import com.vetSystem.vet_system.dto.VeterinarioDTO;
 import com.vetSystem.vet_system.service.VeterinarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +27,33 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/veterinarios")
 @RequiredArgsConstructor
+@Tag(name = "Veterinarios", description = "Gestión de profesionales veterinarios")
 public class VeterinarioController {
 
     private final VeterinarioService veterinarioService;
 
     @GetMapping
+    @Operation(summary = "Listar veterinarios", description = "Devuelve todos los profesionales registrados.")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido")
     public ResponseEntity<List<VeterinarioDTO>> getAllVeterinarios() {
         return ResponseEntity.ok(veterinarioService.getAllVeterinarios());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Consultar veterinario", description = "Busca un profesional por su identificador.")
+    @ApiResponse(responseCode = "200", description = "Veterinario encontrado")
+    @ApiResponse(responseCode = "400", description = "Identificador inválido")
+    @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del veterinario", example = "2")})
     public ResponseEntity<VeterinarioDTO> getVeterinarioById(@PathVariable Long id) {
         return ResponseEntity.ok(veterinarioService.getVeterinarioById(id));
     }
 
     @PostMapping
+    @Operation(summary = "Crear veterinario", description = "Registra un profesional con matrícula única.")
+    @ApiResponse(responseCode = "201", description = "Veterinario creado")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    @ApiResponse(responseCode = "409", description = "Matrícula ya registrada")
     public ResponseEntity<VeterinarioDTO> createVeterinario(
             @Validated(VeterinarioDTO.Creacion.class) @Valid @RequestBody VeterinarioDTO veterinario) {
         VeterinarioDTO nuevo = veterinarioService.createVeterinario(veterinario);
@@ -43,6 +61,11 @@ public class VeterinarioController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Actualizar veterinario", description = "Actualiza los datos del profesional sin cambiar su matrícula.")
+    @ApiResponse(responseCode = "200", description = "Veterinario actualizado")
+    @ApiResponse(responseCode = "400", description = "Datos o identificador inválidos")
+    @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del veterinario", example = "2")})
     public ResponseEntity<VeterinarioDTO> updateVeterinario(
             @PathVariable Long id,
             @Valid @RequestBody VeterinarioDTO veterinario) {
@@ -50,6 +73,12 @@ public class VeterinarioController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar veterinario", description = "Elimina un profesional sin turnos asociados.")
+    @ApiResponse(responseCode = "204", description = "Veterinario eliminado")
+    @ApiResponse(responseCode = "400", description = "Identificador inválido")
+    @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
+    @ApiResponse(responseCode = "409", description = "Veterinario con turnos asociados")
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del veterinario", example = "2")})
     public ResponseEntity<Void> deleteVeterinario(@PathVariable Long id) {
         veterinarioService.deleteVeterinario(id);
         return ResponseEntity.noContent().build();
