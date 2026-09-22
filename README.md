@@ -32,11 +32,29 @@ La aplicación quedará disponible en `http://localhost:8080`.
 
 ### Consola H2
 
-Con la aplicación en ejecución, abrir `http://localhost:8080/h2-console` y usar:
+La consola solo está disponible con el perfil `dev`. Para iniciar la aplicación con ese perfil:
+
+En Windows PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
+```
+
+En Linux o macOS:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+Luego, abrir `http://localhost:8080/h2-console` y usar:
 
 - JDBC URL: `jdbc:h2:mem:vet_system`
 - Usuario: `sa`
 - Contraseña: dejar vacía
+
+Sin el perfil `dev`, la consola H2 permanece deshabilitada.
+
+Esto solo limita el acceso a la consola; la base de datos sigue siendo H2 en memoria en todos los perfiles.
 
 > **Nota - Historia 3:** usamos H2 en memoria en lugar de MySQL. Es una configuración de desarrollo y los datos se reinician al detener la aplicación.
 
