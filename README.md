@@ -70,7 +70,7 @@ La API expone `/api/duenos` para crear y listar dueños, y `/api/duenos/{id}` pa
 
 - [Consigna del sprint 02](docs/sprints/Sprint_02_MVC_REST_CRUD_Dueno.docx).
 - [Colección de Postman con pruebas y respuestas de ejemplo](docs/evidencias/sprint-02/sprint-02-duenos.postman_collection.json).
-- [Resultados JSON de la colección ejecutada con Newman](docs/evidencias/sprint-02/sprint-02-duenos.newman-results.json).
+- [Resumen JSON de resultados de la colección ejecutada con Newman](docs/evidencias/sprint-02/sprint-02-duenos.newman-results.json).
 
 El DNI se conserva al actualizar. La API de este sprint gestiona los datos del dueño; las mascotas se incorporan en el siguiente sprint.
 
@@ -87,10 +87,12 @@ El DNI se conserva al actualizar. La API de este sprint gestiona los datos del d
 Cada sprint guarda sus evidencias en `docs/evidencias/sprint-NN/`, con el número de sprint de dos dígitos (`01`, `02`, `03`, etc.). Los nombres usan minúsculas, sin espacios ni tildes:
 
 - `sprint-NN-tema.postman_collection.json`: colección importable en Postman.
-- `sprint-NN-tema.newman-results.json`: exportación JSON original de la ejecución con Newman.
+- `sprint-NN-tema.newman-results.json`: resumen JSON derivado de la ejecución con Newman.
 - `sprint-NN-descripcion.ext`: otros entregables del sprint, como el diagrama y la captura de H2 del sprint 01.
 
 Para las pruebas de API se guardan únicamente la colección y el JSON de resultados, sin capturas ni informes adicionales. Se conserva la última ejecución aprobada; las anteriores quedan en el historial de Git.
+
+El resumen usa `formatVersion: 1` e incluye herramienta de origen, fecha de ejecución, nombre de la colección, totales y fallos. Cada elemento de `results` conserva nombre, método, URL, estado HTTP, cuerpo de respuesta JSON (`null` si no hay cuerpo) y resultado de cada verificación. Es un formato propio: omite la colección duplicada y los detalles internos del reporte completo de Newman.
 
 ## Ramas
 
