@@ -9,3 +9,4 @@ Guardar aquí los archivos PDF y DOCX de cada sprint. Se incorporan al historial
 - [Sprint 5: validaciones y manejo global de errores](Sprint_05_Validaciones_Errores.docx).
 - [Sprint 6: pruebas con JUnit, Mockito y MockMvc](Sprint_06_Testing_JUnit_Mockito_MockMvc.docx).
 - [Sprint 7: Swagger, frontend y análisis del monolito](Sprint_07_Swagger_Frontend_Analisis.docx).
+- [Sprint 8: evaluación parcial y extensión del monolito](Sprint_08_Parcial1_Guia_Evaluacion.docx).
