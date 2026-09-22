@@ -54,11 +54,10 @@ class TurnoServiceTest {
     @Test
     void createTurno_cuandoHorarioDisponible_guardaUnaVez() {
         TurnoRequestDTO request = requestValido();
-        Mascota mascota = new Mascota();
-        Veterinario veterinario = new Veterinario();
-        Turno turno = new Turno();
-        TurnoResponseDTO respuesta = new TurnoResponseDTO();
-        respuesta.setId(1L);
+        Mascota mascota = mascotaExistente();
+        Veterinario veterinario = veterinarioExistente();
+        Turno turno = nuevoTurno();
+        TurnoResponseDTO respuesta = turnoCreado();
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
         when(veterinarioRepository.findById(2L)).thenReturn(Optional.of(veterinario));
         when(turnoRepository.existsByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
@@ -81,8 +80,8 @@ class TurnoServiceTest {
     @Test
     void createTurno_cuandoHaySuperposicion_lanzaDuplicateResourceExceptionSinGuardar() {
         TurnoRequestDTO request = requestValido();
-        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(new Mascota()));
-        when(veterinarioRepository.findById(2L)).thenReturn(Optional.of(new Veterinario()));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascotaExistente()));
+        when(veterinarioRepository.findById(2L)).thenReturn(Optional.of(veterinarioExistente()));
         when(turnoRepository.existsByVeterinarioIdAndFechaAndHora(2L, request.getFecha(), request.getHora()))
                 .thenReturn(true);
 
@@ -98,5 +97,23 @@ class TurnoServiceTest {
     private TurnoRequestDTO requestValido() {
         return new TurnoRequestDTO(LocalDate.now().plusDays(1), LocalTime.of(10, 0),
                 " Consulta general ", 1L, 2L);
+    }
+
+    private Mascota mascotaExistente() {
+        return new Mascota();
+    }
+
+    private Veterinario veterinarioExistente() {
+        return new Veterinario();
+    }
+
+    private Turno nuevoTurno() {
+        return new Turno();
+    }
+
+    private TurnoResponseDTO turnoCreado() {
+        TurnoResponseDTO respuesta = new TurnoResponseDTO();
+        respuesta.setId(1L);
+        return respuesta;
     }
 }

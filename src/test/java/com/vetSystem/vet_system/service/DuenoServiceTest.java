@@ -16,8 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static com.vetSystem.vet_system.support.DuenoTestData.datosValidos;
-import static com.vetSystem.vet_system.support.DuenoTestData.duenoExistente;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,8 +51,7 @@ class DuenoServiceTest {
 
     @Test
     void getAllDuenos_cuandoHayDatos_retornaDTOs() {
-        Dueno dueno = new Dueno();
-        dueno.setId(1L);
+        Dueno dueno = duenoConId(1L);
         DuenoDTO dto = duenoExistente();
         when(duenoRepository.findAll()).thenReturn(List.of(dueno));
         when(duenoMapper.toDTO(dueno)).thenReturn(dto);
@@ -68,8 +65,7 @@ class DuenoServiceTest {
 
     @Test
     void getDuenoById_cuandoExiste_retornaDTO() {
-        Dueno dueno = new Dueno();
-        dueno.setId(1L);
+        Dueno dueno = duenoConId(1L);
         DuenoDTO dto = duenoExistente();
         when(duenoRepository.findById(1L)).thenReturn(Optional.of(dueno));
         when(duenoMapper.toDTO(dueno)).thenReturn(dto);
@@ -96,19 +92,9 @@ class DuenoServiceTest {
 
     @Test
     void createDueno_cuandoDniDisponible_guardaDatosNormalizados() {
-        DuenoDTO datos = datosValidos();
-        datos.setNombre(" Carlos ");
-        datos.setApellido(" Pérez ");
-        datos.setDni(" 12345678 ");
-        datos.setEmail(" carlos@example.com ");
-        Dueno nuevo = new Dueno();
-        nuevo.setId(44L);
-        nuevo.setNombre(datos.getNombre());
-        nuevo.setApellido(datos.getApellido());
-        nuevo.setTelefono(datos.getTelefono());
-        nuevo.setEmail(datos.getEmail());
-        Dueno guardado = new Dueno();
-        guardado.setId(1L);
+        DuenoDTO datos = datosConEspacios();
+        Dueno nuevo = nuevoDueno(datos);
+        Dueno guardado = duenoConId(1L);
         DuenoDTO respuesta = duenoExistente();
         when(duenoRepository.existsByDni("12345678")).thenReturn(false);
         when(duenoMapper.toEntity(datos)).thenReturn(nuevo);
@@ -141,4 +127,37 @@ class DuenoServiceTest {
         verifyNoInteractions(duenoMapper);
     }
 
+    private DuenoDTO datosValidos() {
+        return new DuenoDTO(null, "Carlos", "Pérez", "12345678", "1122334455", "carlos@example.com");
+    }
+
+    private DuenoDTO duenoExistente() {
+        DuenoDTO dueno = datosValidos();
+        dueno.setId(1L);
+        return dueno;
+    }
+
+    private DuenoDTO datosConEspacios() {
+        DuenoDTO datos = datosValidos();
+        datos.setNombre(" Carlos ");
+        datos.setApellido(" Pérez ");
+        datos.setDni(" 12345678 ");
+        datos.setEmail(" carlos@example.com ");
+        return datos;
+    }
+
+    private Dueno duenoConId(Long id) {
+        Dueno dueno = new Dueno();
+        dueno.setId(id);
+        return dueno;
+    }
+
+    private Dueno nuevoDueno(DuenoDTO datos) {
+        Dueno dueno = duenoConId(44L);
+        dueno.setNombre(datos.getNombre());
+        dueno.setApellido(datos.getApellido());
+        dueno.setTelefono(datos.getTelefono());
+        dueno.setEmail(datos.getEmail());
+        return dueno;
+    }
 }

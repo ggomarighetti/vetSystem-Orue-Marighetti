@@ -17,8 +17,6 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
-import static com.vetSystem.vet_system.support.DuenoTestData.datosValidos;
-import static com.vetSystem.vet_system.support.DuenoTestData.duenoExistente;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -71,7 +69,7 @@ class DuenoControllerTest {
     @Test
     void getDuenoById_cuandoNoExiste_retorna404() throws Exception {
         when(duenoService.getDuenoById(99L))
-                .thenThrow(new ResourceNotFoundException("Dueño con id 99 no fue encontrado"));
+                .thenThrow(duenoNoEncontrado(99L));
 
         mockMvc.perform(get("/api/duenos/99"))
                 .andExpect(status().isNotFound())
@@ -88,7 +86,7 @@ class DuenoControllerTest {
 
         mockMvc.perform(post("/api/duenos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(datosValidos())))
+                        .content(jsonValido()))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/duenos/1"))
                 .andExpect(jsonPath("$.id").value(1))
@@ -106,12 +104,9 @@ class DuenoControllerTest {
     })
     void createDueno_cuandoCampoObligatorioVacio_retorna400SinInvocarServicio(
             String campo, String mensajeEsperado) throws Exception {
-        ObjectNode datos = objectMapper.valueToTree(datosValidos());
-        datos.put(campo, " ");
-
         mockMvc.perform(post("/api/duenos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(datos)))
+                        .content(jsonConCampoVacio(campo)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.mensaje").value(containsString(campo + ": " + mensajeEsperado)))
@@ -120,4 +115,27 @@ class DuenoControllerTest {
         verifyNoInteractions(duenoService);
     }
 
+    private DuenoDTO datosValidos() {
+        return new DuenoDTO(null, "Carlos", "Pérez", "12345678", "1122334455", "carlos@example.com");
+    }
+
+    private DuenoDTO duenoExistente() {
+        DuenoDTO dueno = datosValidos();
+        dueno.setId(1L);
+        return dueno;
+    }
+
+    private ResourceNotFoundException duenoNoEncontrado(Long id) {
+        return new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado");
+    }
+
+    private String jsonValido() {
+        return objectMapper.writeValueAsString(datosValidos());
+    }
+
+    private String jsonConCampoVacio(String campo) {
+        ObjectNode datos = objectMapper.valueToTree(datosValidos());
+        datos.put(campo, " ");
+        return objectMapper.writeValueAsString(datos);
+    }
 }
