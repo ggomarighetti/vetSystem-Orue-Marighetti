@@ -42,7 +42,6 @@ public class DuenoService {
         nuevo.setDni(dni);
         copiarDatosEditables(datos, nuevo);
         try {
-            // La transacción del repositorio finaliza antes de comprobar un conflicto concurrente.
             return duenoRepository.saveAndFlush(nuevo);
         } catch (DataIntegrityViolationException exception) {
             if (duenoRepository.existsByDni(dni)) {
@@ -57,7 +56,6 @@ public class DuenoService {
         Dueno dueno = getDuenoById(id);
         validarDatos(datos);
         copiarDatosEditables(datos, dueno);
-        // El ID, el DNI y las mascotas del dueño se conservan.
         return duenoRepository.save(dueno);
     }
 
@@ -65,9 +63,7 @@ public class DuenoService {
     public void deleteDueno(Long id) {
         Dueno dueno = getDuenoById(id);
         try {
-            // Las mascotas se conservan: su clave foránea impide eliminar al dueño.
             duenoRepository.delete(dueno);
-            // Forzar el DELETE aquí permite traducir el conflicto antes de confirmar la transacción.
             duenoRepository.flush();
         } catch (DataIntegrityViolationException exception) {
             throw new ResourceInUseException("Dueño", id, exception);
