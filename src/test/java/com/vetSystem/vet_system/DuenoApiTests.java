@@ -12,6 +12,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -38,17 +40,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class DuenoApiTests {
 
-    private static final String DATOS = """
-            {"nombre":"Carlos","apellido":"González","dni":"28543210",
-             "telefono":"1145678901","email":"carlos.gonzalez@example.com"}
-            """;
-    private static final String ACTUALIZACION = """
-            {"nombre":"Carlos Alberto","apellido":"González",
-             "telefono":"1199887766","email":"carlos.nuevo@example.com"}
-            """;
-
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private DuenoRepository repository;
@@ -73,7 +69,8 @@ class DuenoApiTests {
 
     @Test
     void crearPersisteElDuenoYDevuelveSuUbicacion() throws Exception {
-        mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON).content(DATOS))
+        mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(datosDueno())))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.dni").value("28543210"))
@@ -103,8 +100,11 @@ class DuenoApiTests {
     @Test
     void dniDuplicadoDevuelveConflictoSinModificarElOriginal() throws Exception {
         guardarDueno();
+        Dueno datos = datosDueno();
+        datos.setNombre("María");
+        datos.setDni(" 28543210 ");
         mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
-                        .content(DATOS.replace("Carlos", "María").replace("28543210", " 28543210 ")))
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.mensaje").value("Ya existe un dueño con DNI: 28543210"));
         assertThat(repository.count()).isEqualTo(1);
@@ -113,6 +113,7 @@ class DuenoApiTests {
 
     @Test
     void altasConcurrentesConElMismoDniCreanUnSoloDueno() throws Exception {
+        String cuerpo = objectMapper.writeValueAsString(datosDueno());
         var inicio = new CountDownLatch(1);
         var respuestas = new ArrayList<Future<Integer>>();
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -122,7 +123,7 @@ class DuenoApiTests {
                         throw new IllegalStateException("No comenzó la prueba concurrente");
                     }
                     return mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
-                                    .content(DATOS)).andReturn().getResponse().getStatus();
+                                    .content(cuerpo)).andReturn().getResponse().getStatus();
                 }));
             }
             inicio.countDown();
@@ -138,8 +139,10 @@ class DuenoApiTests {
     @Test
     void actualizarSinDniConservaElIdentificadorDeNegocio() throws Exception {
         Dueno dueno = guardarDueno();
+        ObjectNode datos = objectMapper.valueToTree(datosActualizacion());
+        datos.remove("dni");
         mvc.perform(put("/api/duenos/{id}", dueno.getId()).contentType(MediaType.APPLICATION_JSON)
-                        .content(ACTUALIZACION))
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Carlos Alberto"))
                 .andExpect(jsonPath("$.telefono").value("1199887766"))
@@ -152,11 +155,13 @@ class DuenoApiTests {
     @Test
     void actualizarIgnoraIdYDniDelCuerpoYPermiteQuitarTelefono() throws Exception {
         Dueno dueno = guardarDueno();
+        Dueno actualizacion = datosActualizacion();
+        actualizacion.setId(999L);
+        actualizacion.setDni("11111111");
+        ObjectNode datos = objectMapper.valueToTree(actualizacion);
+        datos.remove("telefono");
         mvc.perform(put("/api/duenos/{id}", dueno.getId()).contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"id":999,"dni":"11111111","nombre":"Carlos Alberto",
-                                 "apellido":"González","email":"carlos.nuevo@example.com"}
-                                """))
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dueno.getId()))
                 .andExpect(jsonPath("$.dni").value("28543210"));
@@ -167,11 +172,18 @@ class DuenoApiTests {
     @Test
     void crearConIdAjenoNoSobrescribeOtroDuenoNiCreaMascotas() throws Exception {
         Dueno original = guardarDueno();
+        Dueno nuevo = datosDueno();
+        nuevo.setId(original.getId());
+        nuevo.setDni("30123456");
+        nuevo.setNombre("María");
+        nuevo.setApellido("López");
+        nuevo.setEmail("maria@example.com");
+        ObjectNode datos = objectMapper.valueToTree(nuevo);
+        datos.putArray("mascotas").addObject()
+                .put("nombre", "Luna")
+                .put("especie", "Perro");
         mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"id":%d,"dni":"30123456","nombre":"María","apellido":"López",
-                                 "email":"maria@example.com","mascotas":[{"nombre":"Luna","especie":"Perro"}]}
-                                """.formatted(original.getId())))
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.dni").value("30123456"));
         assertThat(repository.count()).isEqualTo(2);
@@ -190,8 +202,10 @@ class DuenoApiTests {
         mvc.perform(get("/api/duenos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].mascotas").doesNotExist());
+        ObjectNode datos = objectMapper.valueToTree(datosActualizacion());
+        datos.putArray("mascotas");
         mvc.perform(put("/api/duenos/{id}", dueno.getId()).contentType(MediaType.APPLICATION_JSON)
-                        .content(ACTUALIZACION.replace("{", "{\"mascotas\":[],")))
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isOk());
         assertThat(jdbc.queryForObject("select dueno_id from mascotas where nombre = 'Luna'", Long.class))
                 .isEqualTo(dueno.getId());
@@ -252,7 +266,8 @@ class DuenoApiTests {
         mvc.perform(get("/api/duenos/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensaje").value("Dueño con id 999 no fue encontrado"));
-        mvc.perform(put("/api/duenos/999").contentType(MediaType.APPLICATION_JSON).content(ACTUALIZACION))
+        mvc.perform(put("/api/duenos/999").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(datosActualizacion())))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensaje").isNotEmpty());
         mvc.perform(delete("/api/duenos/999"))
@@ -263,8 +278,10 @@ class DuenoApiTests {
     @ParameterizedTest
     @ValueSource(strings = {"nombre", "apellido", "dni", "email"})
     void crearRechazaCamposObligatoriosEnBlanco(String campo) throws Exception {
-        String invalido = DATOS.replaceAll("\"" + campo + "\":\"[^\"]*\"", "\"" + campo + "\":\" \"");
-        mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON).content(invalido))
+        ObjectNode datos = objectMapper.valueToTree(datosDueno());
+        datos.put(campo, " ");
+        mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("El campo " + campo + " es obligatorio"));
         assertThat(repository.count()).isZero();
@@ -272,10 +289,13 @@ class DuenoApiTests {
 
     @Test
     void crearRechazaDatosAusentesOLargosYJsonMalformado() throws Exception {
-        mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().isBadRequest());
         mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
-                        .content(DATOS.replace("Carlos", "C".repeat(256))))
+                        .content(objectMapper.writeValueAsString(objectMapper.createObjectNode())))
+                .andExpect(status().isBadRequest());
+        Dueno datos = datosDueno();
+        datos.setNombre("C".repeat(256));
+        mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("El campo nombre no puede superar 255 caracteres"));
         mvc.perform(post("/api/duenos").contentType(MediaType.APPLICATION_JSON).content("{malformado"))
@@ -286,18 +306,32 @@ class DuenoApiTests {
     @Test
     void actualizarConDatosInvalidosNoModificaLoGuardado() throws Exception {
         Dueno dueno = guardarDueno();
-        mvc.perform(put("/api/duenos/{id}", dueno.getId()).contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mvc.perform(put("/api/duenos/{id}", dueno.getId()).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(objectMapper.createObjectNode())))
                 .andExpect(status().isBadRequest());
         assertThat(repository.findById(dueno.getId()).orElseThrow().getNombre()).isEqualTo("Carlos");
     }
 
     private Dueno guardarDueno() {
+        return repository.saveAndFlush(datosDueno());
+    }
+
+    private Dueno datosDueno() {
         Dueno dueno = new Dueno();
         dueno.setNombre("Carlos");
         dueno.setApellido("González");
         dueno.setDni("28543210");
         dueno.setTelefono("1145678901");
         dueno.setEmail("carlos.gonzalez@example.com");
-        return repository.saveAndFlush(dueno);
+        return dueno;
+    }
+
+    private Dueno datosActualizacion() {
+        Dueno dueno = new Dueno();
+        dueno.setNombre("Carlos Alberto");
+        dueno.setApellido("González");
+        dueno.setTelefono("1199887766");
+        dueno.setEmail("carlos.nuevo@example.com");
+        return dueno;
     }
 }
