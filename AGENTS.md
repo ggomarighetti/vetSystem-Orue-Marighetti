@@ -7,6 +7,12 @@
 - Expresar la intención mediante nombres claros y métodos pequeños. Si hace falta una explicación adicional, escribirla en el README o en la documentación fuera de los archivos de código fuente.
 - Al modificar código, mantener esta regla y comprobar que no se hayan introducido comentarios.
 
+## Excepciones reutilizables
+
+- Reutilizar excepciones por categoría de error, sin crear una clase por entidad, campo o caso concreto.
+- Las excepciones deben recibir el mensaje desde el lugar donde se lanzan. No fijar en sus clases mensajes de negocio ni exigir datos como DNI o identificadores de un tipo concreto.
+- Al traducir una excepción, conservar la causa original. El mapeo a respuestas HTTP debe permanecer centralizado en `config/GlobalExceptionHandler.java`.
+
 ## Formato de las pull requests
 
 - Todas las descripciones de PR deben contener, en este orden, los encabezados exactos `### Resume`, `### Evidence` y `### Reference`.

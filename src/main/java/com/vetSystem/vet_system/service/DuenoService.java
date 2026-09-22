@@ -27,7 +27,7 @@ public class DuenoService {
     @Transactional(readOnly = true)
     public Dueno getDuenoById(Long id) {
         return duenoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Dueño", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado"));
     }
 
     public Dueno createDueno(Dueno datos) {
@@ -35,7 +35,7 @@ public class DuenoService {
         validarTexto("dni", datos.getDni(), true);
         String dni = datos.getDni().strip();
         if (duenoRepository.existsByDni(dni)) {
-            throw new DuplicateResourceException(dni);
+            throw new DuplicateResourceException("Ya existe un dueño con DNI: " + dni);
         }
 
         Dueno nuevo = new Dueno();
@@ -45,7 +45,7 @@ public class DuenoService {
             return duenoRepository.saveAndFlush(nuevo);
         } catch (DataIntegrityViolationException exception) {
             if (duenoRepository.existsByDni(dni)) {
-                throw new DuplicateResourceException(dni);
+                throw new DuplicateResourceException("Ya existe un dueño con DNI: " + dni, exception);
             }
             throw exception;
         }
@@ -66,7 +66,8 @@ public class DuenoService {
             duenoRepository.delete(dueno);
             duenoRepository.flush();
         } catch (DataIntegrityViolationException exception) {
-            throw new ResourceInUseException("Dueño", id, exception);
+            throw new ResourceInUseException("Dueño con id " + id
+                    + " tiene registros asociados y no puede eliminarse", exception);
         }
     }
 
