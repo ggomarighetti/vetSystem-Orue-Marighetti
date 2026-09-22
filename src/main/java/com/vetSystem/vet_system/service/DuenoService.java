@@ -26,7 +26,7 @@ public class DuenoService {
 
     @Transactional(readOnly = true)
     public Dueno getDuenoById(Long id) {
-        return duenoRepository.findById(id)
+        return duenoRepository.findByIdWithMascotas(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Dueño con id " + id + " no fue encontrado"));
     }
 
@@ -62,6 +62,10 @@ public class DuenoService {
     @Transactional
     public void deleteDueno(Long id) {
         Dueno dueno = getDuenoById(id);
+        if (!dueno.getMascotas().isEmpty()) {
+            throw new ResourceInUseException("Dueño con id " + id
+                    + " tiene registros asociados y no puede eliminarse");
+        }
         try {
             duenoRepository.delete(dueno);
             duenoRepository.flush();

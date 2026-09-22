@@ -1,0 +1,846 @@
+{
+  "formatVersion": 1,
+  "source": "Newman 6.2.2",
+  "executedAt": "2026-09-22T16:45:13.560+00:00",
+  "collection": "VetSystem - Sprint 03 - CRUD Mascota y relaciones",
+  "summary": {
+    "requests": {
+      "total": 37,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 72,
+      "pending": 0,
+      "failed": 0
+    },
+    "failures": []
+  },
+  "results": [
+    {
+      "name": "01 Crear dueño",
+      "method": "POST",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 201,
+      "body": {
+        "id": 2,
+        "nombre": "Carlos",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1145678901",
+        "email": "carlos.gonzalez@example.com",
+        "mascotas": []
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "ID generado",
+          "passed": true
+        },
+        {
+          "name": "DNI guardado",
+          "passed": true
+        },
+        {
+          "name": "Ubicación del recurso",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "02 Listar dueños",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 200,
+      "body": [
+        {
+          "id": 2,
+          "nombre": "Carlos",
+          "apellido": "González",
+          "dni": "28543210",
+          "telefono": "1145678901",
+          "email": "carlos.gonzalez@example.com",
+          "mascotas": []
+        }
+      ],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Incluye el dueño creado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "03 Obtener dueño por ID",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 200,
+      "body": {
+        "id": 2,
+        "nombre": "Carlos",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1145678901",
+        "email": "carlos.gonzalez@example.com",
+        "mascotas": []
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Datos del dueño",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "04 Consultar dueño inexistente",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Mensaje descriptivo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "05 Rechazar DNI duplicado",
+      "method": "POST",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 409,
+      "body": {
+        "mensaje": "Ya existe un dueño con DNI: 28543210"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Conflicto de DNI",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "06 Actualizar dueño sin enviar DNI",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 200,
+      "body": {
+        "id": 2,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com",
+        "mascotas": []
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Datos actualizados y DNI conservado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "07 Comprobar actualización persistida",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 200,
+      "body": {
+        "id": 2,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com",
+        "mascotas": []
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Cambio persistido",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "08 Conservar ID y DNI aunque se envíen otros",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 200,
+      "body": {
+        "id": 2,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com",
+        "mascotas": []
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "ID y DNI inmutables",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar datos incompletos",
+      "method": "POST",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 400,
+      "body": {
+        "mensaje": "El campo nombre es obligatorio"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Campo obligatorio informado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "10 Actualizar dueño inexistente",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/duenos/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Mensaje de recurso inexistente",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "11 Crear Firulais",
+      "method": "POST",
+      "url": "http://localhost:8080/api/mascotas?duenoId=2",
+      "status": 201,
+      "body": {
+        "id": 56,
+        "nombre": "Firulais",
+        "especie": "perro",
+        "raza": "labrador",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 2
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "ID generado",
+          "passed": true
+        },
+        {
+          "name": "Dueño asociado sin referencia circular",
+          "passed": true
+        },
+        {
+          "name": "Ubicación del recurso",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "12 Crear Michi",
+      "method": "POST",
+      "url": "http://localhost:8080/api/mascotas?duenoId=2",
+      "status": 201,
+      "body": {
+        "id": 57,
+        "nombre": "Michi",
+        "especie": "gato",
+        "raza": "siamés",
+        "fechaNacimiento": "2022-07-20",
+        "duenoId": 2
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "Dueño asociado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "13 Rechazar nombre duplicado al actualizar mascota",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/mascotas/57",
+      "status": 409,
+      "body": {
+        "mensaje": "Ya existe una mascota con nombre Firulais para el dueño con id 2"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Nombre duplicado informado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "14 Crear segundo dueño",
+      "method": "POST",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 201,
+      "body": {
+        "id": 3,
+        "nombre": "Ana",
+        "apellido": "Martínez",
+        "dni": "30112233",
+        "telefono": null,
+        "email": "ana@example.com",
+        "mascotas": []
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "ID distinto",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "15 Crear mascota del segundo dueño",
+      "method": "POST",
+      "url": "http://localhost:8080/api/mascotas?duenoId=3",
+      "status": 201,
+      "body": {
+        "id": 58,
+        "nombre": "Rex",
+        "especie": "perro",
+        "raza": "pastor",
+        "fechaNacimiento": "2020-01-01",
+        "duenoId": 3
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "Segundo dueño asociado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "16 Listar todas las mascotas",
+      "method": "GET",
+      "url": "http://localhost:8080/api/mascotas",
+      "status": 200,
+      "body": [
+        {
+          "id": 56,
+          "nombre": "Firulais",
+          "especie": "perro",
+          "raza": "labrador",
+          "fechaNacimiento": "2021-03-15",
+          "duenoId": 2
+        },
+        {
+          "id": 57,
+          "nombre": "Michi",
+          "especie": "gato",
+          "raza": "siamés",
+          "fechaNacimiento": "2022-07-20",
+          "duenoId": 2
+        },
+        {
+          "id": 58,
+          "nombre": "Rex",
+          "especie": "perro",
+          "raza": "pastor",
+          "fechaNacimiento": "2020-01-01",
+          "duenoId": 3
+        }
+      ],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Incluye las tres mascotas",
+          "passed": true
+        },
+        {
+          "name": "Sin objeto dueño circular",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "17 Obtener mascota por ID",
+      "method": "GET",
+      "url": "http://localhost:8080/api/mascotas/56",
+      "status": 200,
+      "body": {
+        "id": 56,
+        "nombre": "Firulais",
+        "especie": "perro",
+        "raza": "labrador",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 2
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Mascota correcta",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "18 Listar mascotas del primer dueño",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/2/mascotas",
+      "status": 200,
+      "body": [
+        {
+          "id": 56,
+          "nombre": "Firulais",
+          "especie": "perro",
+          "raza": "labrador",
+          "fechaNacimiento": "2021-03-15",
+          "duenoId": 2
+        },
+        {
+          "id": 57,
+          "nombre": "Michi",
+          "especie": "gato",
+          "raza": "siamés",
+          "fechaNacimiento": "2022-07-20",
+          "duenoId": 2
+        }
+      ],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Solo Firulais y Michi",
+          "passed": true
+        },
+        {
+          "name": "Todas pertenecen al primer dueño",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "19 Listar mascotas del segundo dueño",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/3/mascotas",
+      "status": 200,
+      "body": [
+        {
+          "id": 58,
+          "nombre": "Rex",
+          "especie": "perro",
+          "raza": "pastor",
+          "fechaNacimiento": "2020-01-01",
+          "duenoId": 3
+        }
+      ],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Solo Rex",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "20 Obtener dueño con mascotas",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 200,
+      "body": {
+        "id": 2,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com",
+        "mascotas": [
+          {
+            "id": 56,
+            "nombre": "Firulais",
+            "especie": "perro",
+            "raza": "labrador",
+            "fechaNacimiento": "2021-03-15",
+            "duenoId": 2
+          },
+          {
+            "id": 57,
+            "nombre": "Michi",
+            "especie": "gato",
+            "raza": "siamés",
+            "fechaNacimiento": "2022-07-20",
+            "duenoId": 2
+          }
+        ]
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Incluye sus dos mascotas",
+          "passed": true
+        },
+        {
+          "name": "Sin referencia circular",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "21 Rechazar dueño inexistente al crear mascota",
+      "method": "POST",
+      "url": "http://localhost:8080/api/mascotas?duenoId=999",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Mensaje de dueño no encontrado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "22 Rechazar consulta anidada de dueño inexistente",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/999/mascotas",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "23 Rechazar mascota duplicada del mismo dueño",
+      "method": "POST",
+      "url": "http://localhost:8080/api/mascotas?duenoId=2",
+      "status": 409,
+      "body": {
+        "mensaje": "Ya existe una mascota con nombre Firulais para el dueño con id 2"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "24 Rechazar mascota inexistente",
+      "method": "GET",
+      "url": "http://localhost:8080/api/mascotas/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Mascota con id 999 no fue encontrada"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "25 Actualizar mascota",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/mascotas/56",
+      "status": 200,
+      "body": {
+        "id": 56,
+        "nombre": "Firulais Actualizado",
+        "especie": "perro",
+        "raza": "mestizo",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 2
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Nombre actualizado y dueño conservado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "26 Comprobar actualización de mascota",
+      "method": "GET",
+      "url": "http://localhost:8080/api/mascotas/56",
+      "status": 200,
+      "body": {
+        "id": 56,
+        "nombre": "Firulais Actualizado",
+        "especie": "perro",
+        "raza": "mestizo",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 2
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Cambios persistidos",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "27 Rechazar actualización de mascota inexistente",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/mascotas/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Mascota con id 999 no fue encontrada"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "28 Rechazar eliminación de dueño con mascotas",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 409,
+      "body": {
+        "mensaje": "Dueño con id 2 tiene registros asociados y no puede eliminarse"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Mensaje de asociación",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "29 Eliminar Firulais",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/mascotas/56",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "30 Eliminar Michi",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/mascotas/57",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "31 Eliminar Rex",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/mascotas/58",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "32 Rechazar eliminación de mascota inexistente",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/mascotas/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Mascota con id 999 no fue encontrada"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "33 Eliminar segundo dueño",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/duenos/3",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "34 Eliminar dueño",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        },
+        {
+          "name": "Respuesta sin cuerpo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "35 Repetir eliminación",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 2 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "No se puede borrar dos veces",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "36 Consultar dueño eliminado",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/2",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 2 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "El dueño dejó de existir",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "37 Verificar listado final",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 200,
+      "body": [],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "El listado no incluye el dueño eliminado",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}
