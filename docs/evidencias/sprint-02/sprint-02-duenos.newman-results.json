@@ -1,0 +1,323 @@
+{
+  "formatVersion": 1,
+  "source": "Newman 6.2.2",
+  "executedAt": "2026-09-22T15:10:32.417000+00:00",
+  "collection": "VetSystem - Sprint 02 - CRUD Dueño",
+  "summary": {
+    "requests": {
+      "total": 14,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 30,
+      "pending": 0,
+      "failed": 0
+    },
+    "failures": []
+  },
+  "results": [
+    {
+      "name": "01 Crear dueño",
+      "method": "POST",
+      "url": "http://127.0.0.1:8082/api/duenos",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1145678901",
+        "email": "carlos.gonzalez@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "ID generado",
+          "passed": true
+        },
+        {
+          "name": "DNI guardado",
+          "passed": true
+        },
+        {
+          "name": "Ubicación del recurso",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "02 Listar dueños",
+      "method": "GET",
+      "url": "http://127.0.0.1:8082/api/duenos",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "nombre": "Carlos",
+          "apellido": "González",
+          "dni": "28543210",
+          "telefono": "1145678901",
+          "email": "carlos.gonzalez@example.com"
+        }
+      ],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Incluye el dueño creado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "03 Obtener dueño por ID",
+      "method": "GET",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1145678901",
+        "email": "carlos.gonzalez@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Datos del dueño",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "04 Consultar dueño inexistente",
+      "method": "GET",
+      "url": "http://127.0.0.1:8082/api/duenos/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Mensaje descriptivo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "05 Rechazar DNI duplicado",
+      "method": "POST",
+      "url": "http://127.0.0.1:8082/api/duenos",
+      "status": 409,
+      "body": {
+        "mensaje": "Ya existe un dueño con DNI: 28543210"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Conflicto de DNI",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "06 Actualizar dueño sin enviar DNI",
+      "method": "PUT",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Datos actualizados y DNI conservado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "07 Comprobar actualización persistida",
+      "method": "GET",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Cambio persistido",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "08 Conservar ID y DNI aunque se envíen otros",
+      "method": "PUT",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "ID y DNI inmutables",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar datos incompletos",
+      "method": "POST",
+      "url": "http://127.0.0.1:8082/api/duenos",
+      "status": 400,
+      "body": {
+        "mensaje": "El campo nombre es obligatorio"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 400",
+          "passed": true
+        },
+        {
+          "name": "Campo obligatorio informado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "10 Actualizar dueño inexistente",
+      "method": "PUT",
+      "url": "http://127.0.0.1:8082/api/duenos/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Mensaje de recurso inexistente",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "11 Eliminar dueño",
+      "method": "DELETE",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        },
+        {
+          "name": "Respuesta sin cuerpo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "12 Repetir eliminación",
+      "method": "DELETE",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 1 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "No se puede borrar dos veces",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "13 Consultar dueño eliminado",
+      "method": "GET",
+      "url": "http://127.0.0.1:8082/api/duenos/1",
+      "status": 404,
+      "body": {
+        "mensaje": "Dueño con id 1 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "El dueño dejó de existir",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "14 Verificar listado final",
+      "method": "GET",
+      "url": "http://127.0.0.1:8082/api/duenos",
+      "status": 200,
+      "body": [],
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "El listado no incluye el dueño eliminado",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}
