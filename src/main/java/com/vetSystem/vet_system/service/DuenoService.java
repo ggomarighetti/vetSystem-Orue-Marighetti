@@ -2,6 +2,7 @@ package com.vetSystem.vet_system.service;
 
 import com.vetSystem.vet_system.exception.DuplicateResourceException;
 import com.vetSystem.vet_system.exception.InvalidResourceException;
+import com.vetSystem.vet_system.exception.ResourceInUseException;
 import com.vetSystem.vet_system.exception.ResourceNotFoundException;
 import com.vetSystem.vet_system.model.Dueno;
 import com.vetSystem.vet_system.repository.DuenoRepository;
@@ -62,7 +63,15 @@ public class DuenoService {
 
     @Transactional
     public void deleteDueno(Long id) {
-        duenoRepository.delete(getDuenoById(id));
+        Dueno dueno = getDuenoById(id);
+        try {
+            // Las mascotas se conservan: su clave foránea impide eliminar al dueño.
+            duenoRepository.delete(dueno);
+            // Forzar el DELETE aquí permite traducir el conflicto antes de confirmar la transacción.
+            duenoRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new ResourceInUseException("Dueño", id, exception);
+        }
     }
 
     private void copiarDatosEditables(Dueno origen, Dueno destino) {

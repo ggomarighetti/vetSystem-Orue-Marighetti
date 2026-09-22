@@ -2,6 +2,7 @@ package com.vetSystem.vet_system.controller;
 
 import com.vetSystem.vet_system.exception.DuplicateResourceException;
 import com.vetSystem.vet_system.exception.InvalidResourceException;
+import com.vetSystem.vet_system.exception.ResourceInUseException;
 import com.vetSystem.vet_system.exception.ResourceNotFoundException;
 import com.vetSystem.vet_system.model.Dueno;
 import com.vetSystem.vet_system.service.DuenoService;
@@ -63,6 +64,11 @@ public class DuenoController {
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, String>> handleDuplicate(DuplicateResourceException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("mensaje", exception.getMessage()));
+    }
+
+    @ExceptionHandler(ResourceInUseException.class)
+    public ResponseEntity<Map<String, String>> handleResourceInUse(ResourceInUseException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("mensaje", exception.getMessage()));
     }
 

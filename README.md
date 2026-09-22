@@ -66,7 +66,9 @@ Para ejecutar las pruebas:
 
 ## API de dueños — Sprint 02
 
-La API expone `/api/duenos` para crear y listar dueños, y `/api/duenos/{id}` para consultar, actualizar y eliminar. Devuelve 201 al crear, 200 al consultar o actualizar, 204 al eliminar, 404 si el dueño no existe y 409 si el DNI ya está registrado. Los datos obligatorios ausentes o en blanco devuelven 400.
+La API expone `/api/duenos` para crear y listar dueños, y `/api/duenos/{id}` para consultar, actualizar y eliminar. Devuelve 201 al crear, 200 al consultar o actualizar, 204 al eliminar un dueño sin mascotas, 404 si el dueño no existe y 409 si el DNI ya está registrado o se intenta eliminar un dueño con mascotas asociadas. Los datos obligatorios ausentes o en blanco devuelven 400.
+
+El DELETE conserva las dependencias: si el dueño tiene mascotas, con o sin turnos, responde 409 con un mensaje descriptivo y mantiene intactos el dueño, las mascotas y los turnos. El borrado no se propaga en cascada; primero deben resolverse las asociaciones mediante las operaciones correspondientes de mascotas.
 
 - [Consigna del sprint 02](docs/sprints/Sprint_02_MVC_REST_CRUD_Dueno.docx).
 - [Colección de Postman con pruebas y respuestas de ejemplo](docs/evidencias/sprint-02/sprint-02-duenos.postman_collection.json).

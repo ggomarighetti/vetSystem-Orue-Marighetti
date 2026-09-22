@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "VetSystem - Sprint 02 - CRUD Dueño",
-    "description": "CRUD de dueños y casos 400, 404 y 409. Ejecutar en orden contra una instancia local de H2 recién iniciada. Usa datos de ejemplo, guarda el ID de la creación y elimina únicamente ese registro. DNI inmutable en PUT. missingId debe ser un ID inexistente.",
+    "description": "CRUD de dueños y casos 400, 404 y 409. Ejecutar en orden contra una instancia local de H2 recién iniciada. Usa datos de ejemplo, guarda el ID de la creación y elimina únicamente ese registro. DNI inmutable en PUT. missingId debe ser un ID inexistente. DELETE elimina solo dueños sin mascotas: si hay mascotas asociadas, con o sin turnos, retorna 409 y conserva todas las dependencias. Ese caso se cubre con pruebas de integración y datos relacionados en H2, ya que este sprint todavía no expone altas de mascotas o turnos por HTTP.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

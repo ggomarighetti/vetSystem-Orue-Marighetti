@@ -58,7 +58,10 @@ class DuenoApiTests {
 
     @BeforeEach
     void limpiarDatos() {
+        jdbc.update("delete from turnos");
+        jdbc.update("delete from mascotas");
         repository.deleteAll();
+        jdbc.update("delete from veterinarios");
     }
 
     @Test
@@ -205,6 +208,43 @@ class DuenoApiTests {
         mvc.perform(delete("/api/duenos/{id}", dueno.getId()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensaje").value("Dueño con id " + dueno.getId() + " no fue encontrado"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void eliminarDuenoConMascotasDevuelve409YConservaTodasLasDependencias(boolean conTurno) throws Exception {
+        Dueno dueno = guardarDueno();
+        jdbc.update("insert into mascotas (nombre, especie, dueno_id) values (?, ?, ?)",
+                "Luna", "Perro", dueno.getId());
+        jdbc.update("insert into mascotas (nombre, especie, dueno_id) values (?, ?, ?)",
+                "Milo", "Gato", dueno.getId());
+        if (conTurno) {
+            Long mascotaId = jdbc.queryForObject("select id from mascotas where nombre = 'Milo'", Long.class);
+            jdbc.update("insert into veterinarios (nombre, apellido, especialidad, matricula) values (?, ?, ?, ?)",
+                    "Ana", "Pérez", "Clínica", "VET-123");
+            Long veterinarioId = jdbc.queryForObject("select id from veterinarios where matricula = 'VET-123'", Long.class);
+            jdbc.update("""
+                    insert into turnos (fecha, hora, motivo, estado, mascota_id, veterinario_id)
+                    values (DATE '2026-10-01', TIME '10:00:00', ?, ?, ?, ?)
+                    """, "Control", "PENDIENTE", mascotaId, veterinarioId);
+        }
+        var duenosAntes = jdbc.queryForList("select * from duenos order by id");
+        var mascotasAntes = jdbc.queryForList("select * from mascotas order by id");
+        var turnosAntes = jdbc.queryForList("select * from turnos order by id");
+        var veterinariosAntes = jdbc.queryForList("select * from veterinarios order by id");
+
+        mvc.perform(delete("/api/duenos/{id}", dueno.getId()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.mensaje").value("Dueño con id " + dueno.getId()
+                        + " tiene registros asociados y no puede eliminarse"));
+
+        assertThat(jdbc.queryForList("select * from duenos order by id")).isEqualTo(duenosAntes);
+        assertThat(jdbc.queryForList("select * from mascotas order by id")).isEqualTo(mascotasAntes);
+        assertThat(jdbc.queryForList("select * from turnos order by id")).isEqualTo(turnosAntes);
+        assertThat(jdbc.queryForList("select * from veterinarios order by id")).isEqualTo(veterinariosAntes);
+        mvc.perform(get("/api/duenos/{id}", dueno.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(dueno.getId()));
     }
 
     @Test
