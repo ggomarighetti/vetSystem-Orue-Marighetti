@@ -2,8 +2,10 @@ package com.vetSystem.vet_system.controller;
 
 import com.vetSystem.vet_system.dto.VeterinarioDTO;
 import com.vetSystem.vet_system.service.VeterinarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +36,8 @@ public class VeterinarioController {
     }
 
     @PostMapping
-    public ResponseEntity<VeterinarioDTO> createVeterinario(@RequestBody VeterinarioDTO veterinario) {
+    public ResponseEntity<VeterinarioDTO> createVeterinario(
+            @Validated(VeterinarioDTO.Creacion.class) @Valid @RequestBody VeterinarioDTO veterinario) {
         VeterinarioDTO nuevo = veterinarioService.createVeterinario(veterinario);
         return ResponseEntity.created(URI.create("/api/veterinarios/" + nuevo.getId())).body(nuevo);
     }
@@ -42,7 +45,7 @@ public class VeterinarioController {
     @PutMapping("/{id}")
     public ResponseEntity<VeterinarioDTO> updateVeterinario(
             @PathVariable Long id,
-            @RequestBody VeterinarioDTO veterinario) {
+            @Valid @RequestBody VeterinarioDTO veterinario) {
         return ResponseEntity.ok(veterinarioService.updateVeterinario(id, veterinario));
     }
 

@@ -2,6 +2,7 @@ package com.vetSystem.vet_system.controller;
 
 import com.vetSystem.vet_system.dto.MascotaDTO;
 import com.vetSystem.vet_system.service.MascotaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,13 +36,17 @@ public class MascotaController {
     }
 
     @PostMapping
-    public ResponseEntity<MascotaDTO> createMascota(@RequestParam Long duenoId, @RequestBody MascotaDTO mascota) {
+    public ResponseEntity<MascotaDTO> createMascota(
+            @RequestParam Long duenoId,
+            @Valid @RequestBody MascotaDTO mascota) {
         MascotaDTO nueva = mascotaService.createMascota(duenoId, mascota);
         return ResponseEntity.created(URI.create("/api/mascotas/" + nueva.getId())).body(nueva);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MascotaDTO> updateMascota(@PathVariable Long id, @RequestBody MascotaDTO mascota) {
+    public ResponseEntity<MascotaDTO> updateMascota(
+            @PathVariable Long id,
+            @Valid @RequestBody MascotaDTO mascota) {
         return ResponseEntity.ok(mascotaService.updateMascota(id, mascota));
     }
 
