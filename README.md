@@ -68,19 +68,29 @@ Para ejecutar las pruebas:
 
 La API expone `/api/duenos` para crear y listar dueños, y `/api/duenos/{id}` para consultar, actualizar y eliminar. Devuelve 201 al crear, 200 al consultar o actualizar, 204 al eliminar, 404 si el dueño no existe y 409 si el DNI ya está registrado. Los datos obligatorios ausentes o en blanco devuelven 400.
 
-- [Contrato, ejemplos y guía de pruebas del sprint 02](docs/sprint-02.md).
-- [Colección de Postman con pruebas y respuestas de ejemplo](docs/VetSystem_Sprint_02.postman_collection.json).
-- [Evidencia de ejecución de la colección con Newman](docs/evidencias/sprint-02/informe.html).
+- [Consigna del sprint 02](docs/sprints/Sprint_02_MVC_REST_CRUD_Dueno.docx).
+- [Colección de Postman con pruebas y respuestas de ejemplo](docs/evidencias/sprint-02/sprint-02-duenos.postman_collection.json).
+- [Resultados JSON de la colección ejecutada con Newman](docs/evidencias/sprint-02/sprint-02-duenos.newman-results.json).
 
 El DNI se conserva al actualizar. La API de este sprint gestiona los datos del dueño; las mascotas se incorporan en el siguiente sprint.
 
 ## Documentación
 
-![Diagrama de dominio de VetSystem](docs/diagrama-dominio.png)
+![Diagrama de dominio de VetSystem](docs/evidencias/sprint-01/sprint-01-diagrama-dominio.png)
 
-- [Fuente PlantUML del diagrama](docs/diagrama-dominio.puml)
-- [Evidencia de las tablas creadas en H2](docs/evidencia-tablas-h2.png)
+- [Fuente PlantUML del diagrama](docs/evidencias/sprint-01/sprint-01-diagrama-dominio.puml)
+- [Evidencia de las tablas creadas en H2](docs/evidencias/sprint-01/sprint-01-tablas-h2.png)
 - [Documentos PDF y DOCX de los sprints](docs/sprints/README.md)
+
+### Organización de evidencias
+
+Cada sprint guarda sus evidencias en `docs/evidencias/sprint-NN/`, con el número de sprint de dos dígitos (`01`, `02`, `03`, etc.). Los nombres usan minúsculas, sin espacios ni tildes:
+
+- `sprint-NN-tema.postman_collection.json`: colección importable en Postman.
+- `sprint-NN-tema.newman-results.json`: exportación JSON original de la ejecución con Newman.
+- `sprint-NN-descripcion.ext`: otros entregables del sprint, como el diagrama y la captura de H2 del sprint 01.
+
+Para las pruebas de API se guardan únicamente la colección y el JSON de resultados, sin capturas ni informes adicionales. Se conserva la última ejecución aprobada; las anteriores quedan en el historial de Git.
 
 ## Ramas
 

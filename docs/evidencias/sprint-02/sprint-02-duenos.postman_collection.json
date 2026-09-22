@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "VetSystem - Sprint 02 - CRUD Dueño",
-    "description": "CRUD de dueños y casos 400, 404 y 409. Ejecutar en orden contra una instancia local de H2 recién iniciada. Usa datos de ejemplo, guarda el ID de la creación y elimina únicamente ese registro. DNI inmutable en PUT. missingId debe ser un ID inexistente. Ver docs/sprint-02.md.",
+    "description": "CRUD de dueños y casos 400, 404 y 409. Ejecutar en orden contra una instancia local de H2 recién iniciada. Usa datos de ejemplo, guarda el ID de la creación y elimina únicamente ese registro. DNI inmutable en PUT. missingId debe ser un ID inexistente.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
