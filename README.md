@@ -64,7 +64,7 @@ Para ejecutar las pruebas:
 .\mvnw.cmd test
 ```
 
-En el sprint 02 se conserva la prueba de contexto inicial del proyecto y la API se verifica con la colección de Postman. La suite automatizada corresponde al sprint 06; el trabajo anticipado se guarda en la rama `sprint-06` para revisarlo y adaptarlo a la consigna cuando llegue ese sprint.
+En el sprint 02 se conservó la prueba de contexto inicial del proyecto y la API se verificó con la colección de Postman. Desde el sprint 06, la suite automatizada utiliza pruebas unitarias y una prueba parcial de la capa web. La antigua prueba de contexto se retiró para que `test` no inicie JPA ni H2.
 
 ## API de dueños — Sprint 02
 
@@ -117,6 +117,22 @@ Los DTOs de entrada aplican Bean Validation y todos los métodos POST y PUT acti
 
 Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla en el orden guardado. La colección crea los datos mínimos necesarios y comprueba validaciones de creación y actualización, la matrícula inmutable, el rechazo de observaciones extensas sin cambiar el turno, JSON malformado, parámetros inválidos, recursos inexistentes y conflictos de unicidad y horario.
 
+## Pruebas automatizadas — Sprint 06
+
+`DuenoServiceTest` cubre listas vacías y con datos, consultas por ID existentes e inexistentes, alta correcta y DNI duplicado. `TurnoServiceTest` verifica la creación de un turno y el rechazo de horarios superpuestos sin guardar. `DuenoControllerTest` usa MockMvc para comprobar la lista vacía, la consulta por ID con respuestas 200 y 404, el alta correcta con 201 y las validaciones de nombre, apellido, DNI y email en blanco con 400. Son 16 pruebas en total.
+
+Los servicios se prueban con JUnit y Mockito, sin contexto de Spring. La prueba HTTP carga solo la capa web con `@WebMvcTest`, usa `@MockitoBean` para los servicios y no inicia un servidor ni una base de datos. Spring Boot 4.1 ofrece esta anotación en lugar de `@MockBean`. Los conflictos de DNI y horario usan la excepción reutilizable `DuplicateResourceException`, definida por la categoría del error. La estructura preparar, ejecutar y verificar de cada prueba se expresa mediante los bloques de código y los nombres de los métodos, sin comentarios en el código fuente.
+
+Para verificar la suite desde cero:
+
+```powershell
+.\mvnw.cmd clean test
+.\mvnw.cmd test "-Dsurefire.runOrder=random"
+```
+
+- [Consigna del sprint 06](docs/sprints/Sprint_06_Testing_JUnit_Mockito_MockMvc.docx).
+- [Resultados y verificaciones de la suite](docs/evidencias/sprint-06/README.md).
+
 ## Documentación
 
 ![Diagrama de dominio de VetSystem](docs/evidencias/sprint-01/sprint-01-diagrama-dominio.png)
@@ -145,4 +161,4 @@ El resumen usa `formatVersion: 1` e incluye herramienta de origen, fecha de ejec
 - `sprint-03`: relaciones JPA y CRUD REST de mascotas.
 - `sprint-04`: DTOs con MapStruct y API REST de veterinarios y turnos.
 - `sprint-05`: validaciones de entrada y manejo global de errores.
-- `sprint-06`: respaldo de las pruebas anticipadas, pendiente de adaptar a la consigna del sprint 06.
+- `sprint-06`: pruebas unitarias de servicios y pruebas de la capa web con MockMvc.
