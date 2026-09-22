@@ -5,6 +5,8 @@ import com.vetSystem.vet_system.exception.ResourceNotFoundException;
 import com.vetSystem.vet_system.service.DuenoService;
 import com.vetSystem.vet_system.service.MascotaService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import static com.vetSystem.vet_system.support.DuenoTestData.datosValidos;
 import static com.vetSystem.vet_system.support.DuenoTestData.duenoExistente;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -94,17 +97,24 @@ class DuenoControllerTest {
         verify(duenoService).createDueno(any(DuenoDTO.class));
     }
 
-    @Test
-    void createDueno_cuandoEmailVacio_retorna400SinInvocarServicio() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            "nombre,El nombre es obligatorio",
+            "apellido,El apellido es obligatorio",
+            "dni,El DNI es obligatorio",
+            "email,El email es obligatorio"
+    })
+    void createDueno_cuandoCampoObligatorioVacio_retorna400SinInvocarServicio(
+            String campo, String mensajeEsperado) throws Exception {
         ObjectNode datos = objectMapper.valueToTree(datosValidos());
-        datos.put("email", "");
+        datos.put(campo, " ");
 
         mockMvc.perform(post("/api/duenos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.mensaje").value("email: El email es obligatorio"))
+                .andExpect(jsonPath("$.mensaje").value(containsString(campo + ": " + mensajeEsperado)))
                 .andExpect(jsonPath("$.path").value("/api/duenos"));
 
         verifyNoInteractions(duenoService);
