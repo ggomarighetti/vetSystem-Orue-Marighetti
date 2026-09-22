@@ -6,6 +6,8 @@ import com.vetSystem.vet_system.service.DuenoService;
 import com.vetSystem.vet_system.service.MascotaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -44,8 +46,8 @@ public class DuenoController {
     @ApiResponse(responseCode = "200", description = "Dueño encontrado")
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Dueño inexistente")
-    public ResponseEntity<DuenoDTO> getDuenoById(
-            @Parameter(description = "Identificador del dueño", example = "1") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del dueño", example = "1")})
+    public ResponseEntity<DuenoDTO> getDuenoById(@PathVariable Long id) {
         return ResponseEntity.ok(duenoService.getDuenoById(id));
     }
 
@@ -54,8 +56,8 @@ public class DuenoController {
     @ApiResponse(responseCode = "200", description = "Listado obtenido")
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Dueño inexistente")
-    public ResponseEntity<List<MascotaDTO>> getMascotasByDueno(
-            @Parameter(description = "Identificador del dueño", example = "1") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del dueño", example = "1")})
+    public ResponseEntity<List<MascotaDTO>> getMascotasByDueno(@PathVariable Long id) {
         return ResponseEntity.ok(mascotaService.getMascotasByDueno(id));
     }
 
@@ -74,8 +76,9 @@ public class DuenoController {
     @ApiResponse(responseCode = "200", description = "Dueño actualizado")
     @ApiResponse(responseCode = "400", description = "Identificador o datos inválidos")
     @ApiResponse(responseCode = "404", description = "Dueño inexistente")
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del dueño", example = "1")})
     public ResponseEntity<DuenoDTO> updateDueno(
-            @Parameter(description = "Identificador del dueño", example = "1") @PathVariable Long id,
+            @PathVariable Long id,
             @Valid @RequestBody DuenoDTO dueno) {
         return ResponseEntity.ok(duenoService.updateDueno(id, dueno));
     }
@@ -86,8 +89,8 @@ public class DuenoController {
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Dueño inexistente")
     @ApiResponse(responseCode = "409", description = "Dueño con mascotas asociadas")
-    public ResponseEntity<Void> deleteDueno(
-            @Parameter(description = "Identificador del dueño", example = "1") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del dueño", example = "1")})
+    public ResponseEntity<Void> deleteDueno(@PathVariable Long id) {
         duenoService.deleteDueno(id);
         return ResponseEntity.noContent().build();
     }

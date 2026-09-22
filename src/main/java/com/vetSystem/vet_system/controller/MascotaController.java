@@ -4,6 +4,8 @@ import com.vetSystem.vet_system.dto.MascotaDTO;
 import com.vetSystem.vet_system.service.MascotaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -42,8 +44,8 @@ public class MascotaController {
     @ApiResponse(responseCode = "200", description = "Mascota encontrada")
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Mascota inexistente")
-    public ResponseEntity<MascotaDTO> getMascotaById(
-            @Parameter(description = "Identificador de la mascota", example = "3") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador de la mascota", example = "3")})
+    public ResponseEntity<MascotaDTO> getMascotaById(@PathVariable Long id) {
         return ResponseEntity.ok(mascotaService.getMascotaById(id));
     }
 
@@ -53,8 +55,9 @@ public class MascotaController {
     @ApiResponse(responseCode = "400", description = "Datos o identificador del dueño inválidos")
     @ApiResponse(responseCode = "404", description = "Dueño inexistente")
     @ApiResponse(responseCode = "409", description = "Nombre de mascota repetido para el dueño")
+    @Parameters({@Parameter(name = "duenoId", in = ParameterIn.QUERY, description = "Identificador del dueño", example = "1")})
     public ResponseEntity<MascotaDTO> createMascota(
-            @Parameter(description = "Identificador del dueño", example = "1") @RequestParam Long duenoId,
+            @RequestParam Long duenoId,
             @Valid @RequestBody MascotaDTO mascota) {
         MascotaDTO nueva = mascotaService.createMascota(duenoId, mascota);
         return ResponseEntity.created(URI.create("/api/mascotas/" + nueva.getId())).body(nueva);
@@ -66,8 +69,9 @@ public class MascotaController {
     @ApiResponse(responseCode = "400", description = "Datos o identificador inválidos")
     @ApiResponse(responseCode = "404", description = "Mascota inexistente")
     @ApiResponse(responseCode = "409", description = "Nombre de mascota repetido para el dueño")
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador de la mascota", example = "3")})
     public ResponseEntity<MascotaDTO> updateMascota(
-            @Parameter(description = "Identificador de la mascota", example = "3") @PathVariable Long id,
+            @PathVariable Long id,
             @Valid @RequestBody MascotaDTO mascota) {
         return ResponseEntity.ok(mascotaService.updateMascota(id, mascota));
     }
@@ -78,8 +82,8 @@ public class MascotaController {
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Mascota inexistente")
     @ApiResponse(responseCode = "409", description = "Mascota con turnos asociados")
-    public ResponseEntity<Void> deleteMascota(
-            @Parameter(description = "Identificador de la mascota", example = "3") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador de la mascota", example = "3")})
+    public ResponseEntity<Void> deleteMascota(@PathVariable Long id) {
         mascotaService.deleteMascota(id);
         return ResponseEntity.noContent().build();
     }

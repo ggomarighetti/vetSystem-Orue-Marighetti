@@ -6,6 +6,8 @@ import com.vetSystem.vet_system.model.EstadoTurno;
 import com.vetSystem.vet_system.service.TurnoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -37,9 +39,13 @@ public class TurnoController {
     @ApiResponse(responseCode = "200", description = "Listado obtenido")
     @ApiResponse(responseCode = "400", description = "Filtros inválidos")
     @ApiResponse(responseCode = "404", description = "Veterinario del filtro inexistente")
+    @Parameters({
+            @Parameter(name = "veterinarioId", in = ParameterIn.QUERY, description = "Identificador del veterinario", example = "2"),
+            @Parameter(name = "fecha", in = ParameterIn.QUERY, description = "Fecha de la agenda en formato ISO", example = "2026-10-15")
+    })
     public ResponseEntity<List<TurnoResponseDTO>> getAllTurnos(
-            @Parameter(description = "Identificador del veterinario", example = "2") @RequestParam(required = false) Long veterinarioId,
-            @Parameter(description = "Fecha de la agenda en formato ISO", example = "2026-10-15") @RequestParam(required = false) LocalDate fecha) {
+            @RequestParam(required = false) Long veterinarioId,
+            @RequestParam(required = false) LocalDate fecha) {
         if (veterinarioId != null || fecha != null) {
             return ResponseEntity.ok(turnoService.getTurnosByVeterinarioYFecha(veterinarioId, fecha));
         }
@@ -51,8 +57,8 @@ public class TurnoController {
     @ApiResponse(responseCode = "200", description = "Turno encontrado")
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Turno inexistente")
-    public ResponseEntity<TurnoResponseDTO> getTurnoById(
-            @Parameter(description = "Identificador del turno", example = "7") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del turno", example = "7")})
+    public ResponseEntity<TurnoResponseDTO> getTurnoById(@PathVariable Long id) {
         return ResponseEntity.ok(turnoService.getTurnoById(id));
     }
 
@@ -61,9 +67,13 @@ public class TurnoController {
     @ApiResponse(responseCode = "200", description = "Agenda obtenida")
     @ApiResponse(responseCode = "400", description = "Parámetros ausentes o inválidos")
     @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
+    @Parameters({
+            @Parameter(name = "veterinarioId", in = ParameterIn.QUERY, description = "Identificador del veterinario", example = "2"),
+            @Parameter(name = "fecha", in = ParameterIn.QUERY, description = "Fecha de la agenda en formato ISO", example = "2026-10-15")
+    })
     public ResponseEntity<List<TurnoResponseDTO>> getAgenda(
-            @Parameter(description = "Identificador del veterinario", example = "2") @RequestParam Long veterinarioId,
-            @Parameter(description = "Fecha de la agenda en formato ISO", example = "2026-10-15") @RequestParam LocalDate fecha) {
+            @RequestParam Long veterinarioId,
+            @RequestParam LocalDate fecha) {
         return ResponseEntity.ok(turnoService.getTurnosByVeterinarioYFecha(veterinarioId, fecha));
     }
 
@@ -83,10 +93,15 @@ public class TurnoController {
     @ApiResponse(responseCode = "200", description = "Estado actualizado")
     @ApiResponse(responseCode = "400", description = "Estado u observaciones inválidos")
     @ApiResponse(responseCode = "404", description = "Turno inexistente")
+    @Parameters({
+            @Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del turno", example = "7"),
+            @Parameter(name = "estado", in = ParameterIn.QUERY, description = "Nuevo estado del turno", example = "EN_CURSO"),
+            @Parameter(name = "observaciones", in = ParameterIn.QUERY, description = "Observaciones de hasta 255 caracteres", example = "Paciente confirmado")
+    })
     public ResponseEntity<TurnoResponseDTO> actualizarEstado(
-            @Parameter(description = "Identificador del turno", example = "7") @PathVariable Long id,
-            @Parameter(description = "Nuevo estado del turno", example = "EN_CURSO") @RequestParam EstadoTurno estado,
-            @Parameter(description = "Observaciones de hasta 255 caracteres", example = "Paciente confirmado") @RequestParam(required = false) String observaciones) {
+            @PathVariable Long id,
+            @RequestParam EstadoTurno estado,
+            @RequestParam(required = false) String observaciones) {
         return ResponseEntity.ok(turnoService.actualizarEstado(id, estado, observaciones));
     }
 }

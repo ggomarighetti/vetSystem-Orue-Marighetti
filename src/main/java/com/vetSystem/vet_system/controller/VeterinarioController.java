@@ -4,6 +4,8 @@ import com.vetSystem.vet_system.dto.VeterinarioDTO;
 import com.vetSystem.vet_system.service.VeterinarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -42,8 +44,8 @@ public class VeterinarioController {
     @ApiResponse(responseCode = "200", description = "Veterinario encontrado")
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
-    public ResponseEntity<VeterinarioDTO> getVeterinarioById(
-            @Parameter(description = "Identificador del veterinario", example = "2") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del veterinario", example = "2")})
+    public ResponseEntity<VeterinarioDTO> getVeterinarioById(@PathVariable Long id) {
         return ResponseEntity.ok(veterinarioService.getVeterinarioById(id));
     }
 
@@ -63,8 +65,9 @@ public class VeterinarioController {
     @ApiResponse(responseCode = "200", description = "Veterinario actualizado")
     @ApiResponse(responseCode = "400", description = "Datos o identificador inválidos")
     @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del veterinario", example = "2")})
     public ResponseEntity<VeterinarioDTO> updateVeterinario(
-            @Parameter(description = "Identificador del veterinario", example = "2") @PathVariable Long id,
+            @PathVariable Long id,
             @Valid @RequestBody VeterinarioDTO veterinario) {
         return ResponseEntity.ok(veterinarioService.updateVeterinario(id, veterinario));
     }
@@ -75,8 +78,8 @@ public class VeterinarioController {
     @ApiResponse(responseCode = "400", description = "Identificador inválido")
     @ApiResponse(responseCode = "404", description = "Veterinario inexistente")
     @ApiResponse(responseCode = "409", description = "Veterinario con turnos asociados")
-    public ResponseEntity<Void> deleteVeterinario(
-            @Parameter(description = "Identificador del veterinario", example = "2") @PathVariable Long id) {
+    @Parameters({@Parameter(name = "id", in = ParameterIn.PATH, description = "Identificador del veterinario", example = "2")})
+    public ResponseEntity<Void> deleteVeterinario(@PathVariable Long id) {
         veterinarioService.deleteVeterinario(id);
         return ResponseEntity.noContent().build();
     }
