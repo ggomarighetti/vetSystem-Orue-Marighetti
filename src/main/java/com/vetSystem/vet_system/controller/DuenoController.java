@@ -1,7 +1,9 @@
 package com.vetSystem.vet_system.controller;
 
 import com.vetSystem.vet_system.model.Dueno;
+import com.vetSystem.vet_system.model.Mascota;
 import com.vetSystem.vet_system.service.DuenoService;
+import com.vetSystem.vet_system.service.MascotaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +24,7 @@ import java.util.List;
 public class DuenoController {
 
     private final DuenoService duenoService;
+    private final MascotaService mascotaService;
 
     @GetMapping
     public ResponseEntity<List<Dueno>> getAllDuenos() {
@@ -31,6 +34,11 @@ public class DuenoController {
     @GetMapping("/{id}")
     public ResponseEntity<Dueno> getDuenoById(@PathVariable Long id) {
         return ResponseEntity.ok(duenoService.getDuenoById(id));
+    }
+
+    @GetMapping("/{id}/mascotas")
+    public ResponseEntity<List<Mascota>> getMascotasByDueno(@PathVariable Long id) {
+        return ResponseEntity.ok(mascotaService.getMascotasByDueno(id));
     }
 
     @PostMapping

@@ -1,5 +1,7 @@
 package com.vetSystem.vet_system.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,7 +43,13 @@ public class Mascota {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dueno_id", nullable = false)
+    @JsonBackReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Dueno dueno;
+
+    @JsonGetter("duenoId")
+    public Long duenoIdEnJson() {
+        return dueno == null ? null : dueno.getId();
+    }
 }

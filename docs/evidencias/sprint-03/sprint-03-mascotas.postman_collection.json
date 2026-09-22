@@ -1,0 +1,980 @@
+{
+  "info": {
+    "name": "VetSystem - Sprint 03 - CRUD Mascota y relaciones",
+    "description": "CRUD de dueños y mascotas, relación bidireccional, consulta anidada, errores 404 y 409. Ejecutar en orden contra H2 recién iniciada. La colección crea dos dueños y tres mascotas, verifica el aislamiento por dueño y limpia sus datos al finalizar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "dni",
+      "value": "28543210",
+      "type": "string"
+    },
+    {
+      "key": "duenoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "missingId",
+      "value": "999",
+      "type": "string"
+    },
+    {
+      "key": "mascotaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "segundaMascotaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "otraMascotaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "otroDuenoId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Crear dueño",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"González\",\n  \"dni\": \"{{dni}}\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"carlos.gonzalez@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const dueno = pm.response.json();",
+              "pm.test(\"ID generado\", () => pm.expect(dueno.id).to.be.a(\"number\"));",
+              "pm.collectionVariables.set(\"duenoId\", dueno.id);",
+              "pm.test(\"DNI guardado\", () => pm.expect(dueno.dni).to.eql(pm.collectionVariables.get(\"dni\")));",
+              "pm.test(\"Ubicación del recurso\", () => pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"/api/duenos/\" + dueno.id));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Listar dueños",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Incluye el dueño creado\", () => pm.expect(pm.response.json().some(d => d.id === Number(pm.collectionVariables.get(\"duenoId\")))).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Obtener dueño por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Datos del dueño\", () => { const d = pm.response.json(); pm.expect(d.nombre).to.eql(\"Carlos\"); pm.expect(d.apellido).to.eql(\"González\"); pm.expect(d.id).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Consultar dueño inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{missingId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Mensaje descriptivo\", () => pm.expect(pm.response.json().mensaje).to.eql(\"Dueño con id \" + pm.collectionVariables.get(\"missingId\") + \" no fue encontrado\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Rechazar DNI duplicado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"María\",\n  \"apellido\": \"López\",\n  \"dni\": \"{{dni}}\",\n  \"telefono\": \"1145678901\",\n  \"email\": \"maria@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+              "pm.test(\"Conflicto de DNI\", () => pm.expect(pm.response.json().mensaje).to.eql(\"Ya existe un dueño con DNI: \" + pm.collectionVariables.get(\"dni\")));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Actualizar dueño sin enviar DNI",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Datos actualizados y DNI conservado\", () => { const d = pm.response.json(); pm.expect(d.nombre).to.eql(\"Carlos Alberto\"); pm.expect(d.telefono).to.eql(\"1199887766\"); pm.expect(d.email).to.eql(\"carlos.nuevo@example.com\"); pm.expect(d.dni).to.eql(pm.collectionVariables.get(\"dni\")); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Comprobar actualización persistida",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cambio persistido\", () => pm.expect(pm.response.json().nombre).to.eql(\"Carlos Alberto\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Conservar ID y DNI aunque se envíen otros",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\",\n  \"id\": 999,\n  \"dni\": \"11111111\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"ID y DNI inmutables\", () => { const d = pm.response.json(); pm.expect(d.id).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))); pm.expect(d.dni).to.eql(pm.collectionVariables.get(\"dni\")); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar datos incompletos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dni\": \"30123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Campo obligatorio informado\", () => pm.expect(pm.response.json().mensaje).to.eql(\"El campo nombre es obligatorio\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Actualizar dueño inexistente",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos/{{missingId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carlos Alberto\",\n  \"apellido\": \"González\",\n  \"telefono\": \"1199887766\",\n  \"email\": \"carlos.nuevo@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Mensaje de recurso inexistente\", () => pm.expect(pm.response.json().mensaje).to.include(\"no fue encontrado\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Crear Firulais",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Firulais\",\n  \"especie\": \"perro\",\n  \"raza\": \"labrador\",\n  \"fechaNacimiento\": \"2021-03-15\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const mascota = pm.response.json();",
+              "pm.test(\"ID generado\", () => pm.expect(mascota.id).to.be.a(\"number\"));",
+              "pm.test(\"Dueño asociado sin referencia circular\", () => { pm.expect(mascota.duenoId).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))); pm.expect(mascota).not.to.have.property(\"dueno\"); });",
+              "pm.collectionVariables.set(\"mascotaId\", mascota.id);",
+              "pm.test(\"Ubicación del recurso\", () => pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"/api/mascotas/\" + mascota.id));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Crear Michi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Michi\",\n  \"especie\": \"gato\",\n  \"raza\": \"siamés\",\n  \"fechaNacimiento\": \"2022-07-20\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const mascota = pm.response.json();",
+              "pm.collectionVariables.set(\"segundaMascotaId\", mascota.id);",
+              "pm.test(\"Dueño asociado\", () => pm.expect(mascota.duenoId).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Crear segundo dueño",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/duenos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Martínez\",\n  \"dni\": \"30112233\",\n  \"email\": \"ana@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const dueno = pm.response.json();",
+              "pm.collectionVariables.set(\"otroDuenoId\", dueno.id);",
+              "pm.test(\"ID distinto\", () => pm.expect(dueno.id).not.to.eql(Number(pm.collectionVariables.get(\"duenoId\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Crear mascota del segundo dueño",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{otroDuenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Rex\",\n  \"especie\": \"perro\",\n  \"raza\": \"pastor\",\n  \"fechaNacimiento\": \"2020-01-01\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const mascota = pm.response.json();",
+              "pm.collectionVariables.set(\"otraMascotaId\", mascota.id);",
+              "pm.test(\"Segundo dueño asociado\", () => pm.expect(mascota.duenoId).to.eql(Number(pm.collectionVariables.get(\"otroDuenoId\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Listar todas las mascotas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const mascotas = pm.response.json();",
+              "pm.test(\"Incluye las tres mascotas\", () => pm.expect(mascotas).to.have.length(3));",
+              "pm.test(\"Sin objeto dueño circular\", () => pm.expect(mascotas.every(m => !Object.hasOwn(m, \"dueno\") && typeof m.duenoId === \"number\")).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 Obtener mascota por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Mascota correcta\", () => pm.expect(pm.response.json().nombre).to.eql(\"Firulais\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 Listar mascotas del primer dueño",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}/mascotas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const mascotas = pm.response.json();",
+              "pm.test(\"Solo Firulais y Michi\", () => pm.expect(mascotas.map(m => m.nombre).sort()).to.eql([\"Firulais\", \"Michi\"]));",
+              "pm.test(\"Todas pertenecen al primer dueño\", () => pm.expect(mascotas.every(m => m.duenoId === Number(pm.collectionVariables.get(\"duenoId\")))).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 Listar mascotas del segundo dueño",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{otroDuenoId}}/mascotas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const mascotas = pm.response.json();",
+              "pm.test(\"Solo Rex\", () => pm.expect(mascotas.map(m => m.nombre)).to.eql([\"Rex\"]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 Obtener dueño con mascotas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const dueno = pm.response.json();",
+              "pm.test(\"Incluye sus dos mascotas\", () => pm.expect(dueno.mascotas.map(m => m.nombre).sort()).to.eql([\"Firulais\", \"Michi\"]));",
+              "pm.test(\"Sin referencia circular\", () => pm.expect(dueno.mascotas.every(m => !Object.hasOwn(m, \"dueno\"))).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 Rechazar dueño inexistente al crear mascota",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{missingId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Fantasma\",\n  \"especie\": \"perro\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Mensaje de dueño no encontrado\", () => pm.expect(pm.response.json().mensaje).to.include(\"Dueño\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 Rechazar consulta anidada de dueño inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{missingId}}/mascotas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 Rechazar mascota duplicada del mismo dueño",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas?duenoId={{duenoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Firulais\",\n  \"especie\": \"perro\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 Rechazar mascota inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{missingId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 Actualizar mascota",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Firulais Actualizado\",\n  \"especie\": \"perro\",\n  \"raza\": \"mestizo\",\n  \"fechaNacimiento\": \"2021-03-15\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const mascota = pm.response.json();",
+              "pm.test(\"Nombre actualizado y dueño conservado\", () => { pm.expect(mascota.nombre).to.eql(\"Firulais Actualizado\"); pm.expect(mascota.duenoId).to.eql(Number(pm.collectionVariables.get(\"duenoId\"))); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 Comprobar actualización de mascota",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cambios persistidos\", () => { const mascota = pm.response.json(); pm.expect(mascota.nombre).to.eql(\"Firulais Actualizado\"); pm.expect(mascota.raza).to.eql(\"mestizo\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "26 Rechazar actualización de mascota inexistente",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/mascotas/{{missingId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Fantasma\",\n  \"especie\": \"perro\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "27 Rechazar eliminación de dueño con mascotas",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+              "pm.test(\"Mensaje de asociación\", () => pm.expect(pm.response.json().mensaje).to.include(\"registros asociados\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "28 Eliminar Firulais",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "29 Eliminar Michi",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{segundaMascotaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "30 Eliminar Rex",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{otraMascotaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "31 Rechazar eliminación de mascota inexistente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/mascotas/{{missingId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "32 Eliminar segundo dueño",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{otroDuenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "33 Eliminar dueño",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+              "pm.test(\"Respuesta sin cuerpo\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "34 Repetir eliminación",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"No se puede borrar dos veces\", () => pm.expect(pm.response.json().mensaje).to.include(\"no fue encontrado\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "35 Consultar dueño eliminado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos/{{duenoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"El dueño dejó de existir\", () => pm.expect(pm.response.json().mensaje).to.include(\"no fue encontrado\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "36 Verificar listado final",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/duenos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"El listado no incluye el dueño eliminado\", () => pm.expect(pm.response.json().some(d => d.id === Number(pm.collectionVariables.get(\"duenoId\")))).to.be.false);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
