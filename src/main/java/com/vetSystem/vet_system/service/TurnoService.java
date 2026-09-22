@@ -90,10 +90,14 @@ public class TurnoService {
         if (nuevoEstado == null) {
             throw new InvalidResourceException("El estado es obligatorio");
         }
+        String observacionesNormalizadas = observaciones == null ? null : observaciones.strip();
+        if (observacionesNormalizadas != null && observacionesNormalizadas.length() > 255) {
+            throw new InvalidResourceException("El campo observaciones no puede superar 255 caracteres");
+        }
         Turno turno = buscarTurno(id);
         turno.setEstado(nuevoEstado);
-        if (observaciones != null) {
-            turno.setObservaciones(observaciones.strip());
+        if (observacionesNormalizadas != null) {
+            turno.setObservaciones(observacionesNormalizadas);
         }
         return turnoMapper.toDTO(turnoRepository.save(turno));
     }
