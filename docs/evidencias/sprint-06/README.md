@@ -4,7 +4,7 @@ La suite del sprint cubre 16 casos: seis de `DuenoServiceTest`, dos de `TurnoSer
 
 | Verificación | Resultado |
 | --- | --- |
-| `.\mvnw.cmd clean test` | `BUILD SUCCESS`; 16 pruebas, 0 fallos, 0 errores, 0 omitidas. La ejecución limpia compiló cuatro clases de prueba y no inició JPA ni H2. |
+| `.\mvnw.cmd clean test` | `BUILD SUCCESS`; 16 pruebas, 0 fallos, 0 errores, 0 omitidas. La ejecución limpia compiló tres clases de prueba y no inició JPA ni H2. |
 | `.\mvnw.cmd test "-Dsurefire.runOrder=random"` | `BUILD SUCCESS`; 16 pruebas, 0 fallos, 0 errores, 0 omitidas. |
 | Mutación temporal de `DuenoService.createDueno` para omitir la consulta de DNI duplicado | `createDueno_cuandoDniDuplicado_lanzaDuplicateResourceException` falló como se esperaba: recibió `NullPointerException` en lugar de `DuplicateResourceException`. Se restauró la implementación original. |
 
