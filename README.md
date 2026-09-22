@@ -76,19 +76,33 @@ El DELETE conserva las dependencias: si el dueño tiene mascotas, con o sin turn
 - [Colección de Postman con pruebas y respuestas de ejemplo](docs/evidencias/sprint-02/sprint-02-duenos.postman_collection.json).
 - [Resumen JSON de resultados de la colección ejecutada con Newman](docs/evidencias/sprint-02/sprint-02-duenos.newman-results.json).
 
-El DNI se conserva al actualizar. Desde el sprint 03, las consultas de dueños incluyen sus mascotas.
+El DNI se conserva al actualizar. Desde el sprint 04, las respuestas de dueños usan `DuenoDTO` y la colección de mascotas se consulta mediante el endpoint anidado.
 
 ## API de mascotas — Sprint 03
 
 La API expone `GET /api/mascotas`, `GET /api/mascotas/{id}`, `POST /api/mascotas?duenoId={id}`, `PUT /api/mascotas/{id}` y `DELETE /api/mascotas/{id}`. Para crear una mascota, el dueño debe existir; si no existe, la API responde 404. El nombre de una mascota no puede repetirse para el mismo dueño: una restricción única sobre `dueno_id` y `nombre` también evita duplicados ante solicitudes concurrentes, y el conflicto responde 409.
 
-`GET /api/duenos/{id}/mascotas` devuelve solo las mascotas de ese dueño y responde 404 si no existe. `GET /api/duenos/{id}` incluye la lista de mascotas. Las respuestas de Mascota muestran `duenoId` y omiten el objeto `dueno` para evitar el JSON circular. El DELETE de un dueño con mascotas conserva la respuesta 409 y no elimina las asociaciones.
+`GET /api/duenos/{id}/mascotas` devuelve solo las mascotas de ese dueño y responde 404 si no existe. Las respuestas de Mascota muestran `duenoId` y omiten el objeto `dueno` para evitar el JSON circular. El DELETE de un dueño con mascotas conserva la respuesta 409 y no elimina las asociaciones.
 
 - [Consigna del sprint 03](docs/sprints/Sprint_03_JPA_Relaciones_CRUD_Mascota.docx).
 - [Colección de Postman con 37 solicitudes](docs/evidencias/sprint-03/sprint-03-mascotas.postman_collection.json).
 - [Resultados de Newman con 72 verificaciones aprobadas](docs/evidencias/sprint-03/sprint-03-mascotas.newman-results.json).
 
 Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla en el orden guardado. La colección crea dos dueños y tres mascotas, comprueba las respuestas y elimina los datos de ejemplo al finalizar.
+
+## API de turnos y veterinarios — Sprint 04
+
+Las entidades JPA quedaron desacopladas de la representación HTTP mediante `DuenoDTO`, `MascotaDTO`, `VeterinarioDTO`, `TurnoRequestDTO` y `TurnoResponseDTO`. MapStruct genera los mappers durante la compilación. Dueño y Mascota ya no usan anotaciones de Jackson en sus relaciones; `MascotaDTO` expone `duenoId` y `duenoNombre`, mientras `DuenoDTO` omite la colección de mascotas.
+
+La API de veterinarios ofrece listado, consulta por ID, creación, actualización y eliminación en `/api/veterinarios`. La matrícula es única e inmutable durante la actualización; los duplicados devuelven 409. La eliminación también devuelve 409 cuando el veterinario tiene turnos asociados.
+
+La API de turnos permite listar, consultar por ID y crear en `/api/turnos`; consultar la agenda mediante `GET /api/turnos/agenda?veterinarioId={id}&fecha={fecha}` o con los mismos filtros sobre `GET /api/turnos`; y actualizar estado y observaciones mediante `PATCH /api/turnos/{id}/estado`. No se admiten dos turnos para el mismo veterinario en la misma fecha y hora: el conflicto devuelve 409. Las respuestas incluyen los nombres de mascota y veterinario.
+
+- [Consigna del sprint 04](docs/sprints/Sprint_04_Turno_Veterinario_DTOs.docx).
+- [Colección de Postman con 31 solicitudes](docs/evidencias/sprint-04/sprint-04-turnos-dtos.postman_collection.json).
+- [Resultados de Newman con 61 verificaciones aprobadas](docs/evidencias/sprint-04/sprint-04-turnos-dtos.newman-results.json).
+
+Para reproducir la colección, iniciar la aplicación con H2 vacía y ejecutarla en el orden guardado. La colección cubre los DTOs existentes, los cinco endpoints de Veterinario, los endpoints de Turno, la agenda, el cambio de estado, los conflictos de horario y la protección de asociaciones.
 
 ## Documentación
 
@@ -116,4 +130,5 @@ El resumen usa `formatVersion: 1` e incluye herramienta de origen, fecha de ejec
 - `sprint-01`: trabajo correspondiente al Sprint 1.
 - `sprint-02`: arquitectura MVC y CRUD REST de dueños.
 - `sprint-03`: relaciones JPA y CRUD REST de mascotas.
+- `sprint-04`: DTOs con MapStruct y API REST de veterinarios y turnos.
 - `sprint-06`: respaldo de las pruebas anticipadas, pendiente de adaptar a la consigna del sprint 06.

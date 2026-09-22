@@ -1,7 +1,7 @@
 package com.vetSystem.vet_system.controller;
 
-import com.vetSystem.vet_system.model.Dueno;
-import com.vetSystem.vet_system.model.Mascota;
+import com.vetSystem.vet_system.dto.DuenoDTO;
+import com.vetSystem.vet_system.dto.MascotaDTO;
 import com.vetSystem.vet_system.service.DuenoService;
 import com.vetSystem.vet_system.service.MascotaService;
 import lombok.RequiredArgsConstructor;
@@ -27,28 +27,28 @@ public class DuenoController {
     private final MascotaService mascotaService;
 
     @GetMapping
-    public ResponseEntity<List<Dueno>> getAllDuenos() {
+    public ResponseEntity<List<DuenoDTO>> getAllDuenos() {
         return ResponseEntity.ok(duenoService.getAllDuenos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Dueno> getDuenoById(@PathVariable Long id) {
+    public ResponseEntity<DuenoDTO> getDuenoById(@PathVariable Long id) {
         return ResponseEntity.ok(duenoService.getDuenoById(id));
     }
 
     @GetMapping("/{id}/mascotas")
-    public ResponseEntity<List<Mascota>> getMascotasByDueno(@PathVariable Long id) {
+    public ResponseEntity<List<MascotaDTO>> getMascotasByDueno(@PathVariable Long id) {
         return ResponseEntity.ok(mascotaService.getMascotasByDueno(id));
     }
 
     @PostMapping
-    public ResponseEntity<Dueno> createDueno(@RequestBody Dueno dueno) {
-        Dueno nuevo = duenoService.createDueno(dueno);
+    public ResponseEntity<DuenoDTO> createDueno(@RequestBody DuenoDTO dueno) {
+        DuenoDTO nuevo = duenoService.createDueno(dueno);
         return ResponseEntity.created(URI.create("/api/duenos/" + nuevo.getId())).body(nuevo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Dueno> updateDueno(@PathVariable Long id, @RequestBody Dueno dueno) {
+    public ResponseEntity<DuenoDTO> updateDueno(@PathVariable Long id, @RequestBody DuenoDTO dueno) {
         return ResponseEntity.ok(duenoService.updateDueno(id, dueno));
     }
 

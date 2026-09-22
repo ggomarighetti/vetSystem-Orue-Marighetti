@@ -1,0 +1,717 @@
+{
+  "formatVersion": 1,
+  "source": "Newman 6.2.2",
+  "executedAt": "2026-09-22T18:09:13.0920000+00:00",
+  "collection": "VetSystem - Sprint 04 - Turnos, veterinarios y DTOs",
+  "summary": {
+    "requests": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 61,
+      "pending": 0,
+      "failed": 0
+    },
+    "failures": []
+  },
+  "results": [
+    {
+      "name": "01 Crear dueño con DTO",
+      "method": "POST",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1145678901",
+        "email": "carlos.gonzalez@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "DuenoDTO sin mascotas",
+          "passed": true
+        },
+        {
+          "name": "Ubicación del dueño",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "02 Obtener dueño mediante DTO",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1145678901",
+        "email": "carlos.gonzalez@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Respuesta desacoplada de la entidad",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "03 Actualizar dueño con DTO",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/duenos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Datos editables actualizados y DNI conservado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "04 Crear mascota con DTO",
+      "method": "POST",
+      "url": "http://localhost:8080/api/mascotas?duenoId=1",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Firulais",
+        "especie": "perro",
+        "raza": "labrador",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 1,
+        "duenoNombre": "Carlos Alberto"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "MascotaDTO plano",
+          "passed": true
+        },
+        {
+          "name": "Ubicación de la mascota",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "05 Listar mascotas del dueño",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos/1/mascotas",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Firulais",
+        "especie": "perro",
+        "raza": "labrador",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 1,
+        "duenoNombre": "Carlos Alberto"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Endpoint anidado conserva DTOs",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "06 Listar mascotas mediante DTOs",
+      "method": "GET",
+      "url": "http://localhost:8080/api/mascotas",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Firulais",
+        "especie": "perro",
+        "raza": "labrador",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 1,
+        "duenoNombre": "Carlos Alberto"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Todas las mascotas son DTOs planos",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "07 Actualizar mascota con DTO",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/mascotas/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Firulais",
+        "especie": "perro",
+        "raza": "mestizo",
+        "fechaNacimiento": "2021-03-15",
+        "duenoId": 1,
+        "duenoNombre": "Carlos Alberto"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Datos actualizados y dueño conservado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "08 Crear veterinario",
+      "method": "POST",
+      "url": "http://localhost:8080/api/veterinarios",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "nombre": "Leandro",
+        "apellido": "Pérez",
+        "matricula": "MV-4521",
+        "especialidad": "Clínica General"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "VeterinarioDTO creado",
+          "passed": true
+        },
+        {
+          "name": "Ubicación del veterinario",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar matrícula duplicada",
+      "method": "POST",
+      "url": "http://localhost:8080/api/veterinarios",
+      "status": 409,
+      "body": {
+        "mensaje": "Ya existe un veterinario con matrícula: MV-4521"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Conflicto de matrícula descriptivo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "10 Listar veterinarios",
+      "method": "GET",
+      "url": "http://localhost:8080/api/veterinarios",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Leandro",
+        "apellido": "Pérez",
+        "matricula": "MV-4521",
+        "especialidad": "Clínica General"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Incluye el veterinario creado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "11 Obtener veterinario por ID",
+      "method": "GET",
+      "url": "http://localhost:8080/api/veterinarios/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Leandro",
+        "apellido": "Pérez",
+        "matricula": "MV-4521",
+        "especialidad": "Clínica General"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Veterinario correcto",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "12 Actualizar veterinario",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/veterinarios/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Leandro",
+        "apellido": "Pérez",
+        "matricula": "MV-4521",
+        "especialidad": "Medicina Interna"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Especialidad actualizada y matrícula conservada",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "13 Crear veterinario temporal",
+      "method": "POST",
+      "url": "http://localhost:8080/api/veterinarios",
+      "status": 201,
+      "body": {
+        "id": 2,
+        "nombre": "Ana",
+        "apellido": "Ruiz",
+        "matricula": "MV-9000",
+        "especialidad": "Cardiología"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "14 Eliminar veterinario temporal",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/veterinarios/2",
+      "status": 204,
+      "body": null,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        },
+        {
+          "name": "Respuesta sin cuerpo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "15 Confirmar veterinario eliminado",
+      "method": "GET",
+      "url": "http://localhost:8080/api/veterinarios/2",
+      "status": 404,
+      "body": {
+        "mensaje": "Veterinario con id 2 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "16 Crear turno",
+      "method": "POST",
+      "url": "http://localhost:8080/api/turnos",
+      "status": 201,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "TurnoResponseDTO completo",
+          "passed": true
+        },
+        {
+          "name": "Ubicación del turno",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "17 Obtener turno por ID",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Turno correcto",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "18 Listar turnos",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Incluye el turno creado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "19 Consultar agenda del veterinario",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos/agenda?veterinarioId=1&fecha=2026-10-15",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Agenda contiene el turno",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "20 Consultar agenda mediante filtros",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos?veterinarioId=1&fecha=2026-10-15",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "PENDIENTE",
+        "observaciones": null,
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Filtros devuelven la agenda",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "21 Rechazar turno superpuesto",
+      "method": "POST",
+      "url": "http://localhost:8080/api/turnos",
+      "status": 409,
+      "body": {
+        "mensaje": "El veterinario ya tiene un turno en ese horario"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Conflicto de horario descriptivo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "22 Actualizar estado del turno",
+      "method": "PATCH",
+      "url": "http://localhost:8080/api/turnos/1/estado?estado=FINALIZADO&observaciones=Consulta%20sin%20novedades",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "FINALIZADO",
+        "observaciones": "Consulta sin novedades",
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Estado y observaciones actualizados",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "23 Confirmar actualización del turno",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos/1",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "fecha": "2026-10-15",
+        "hora": "10:30:00",
+        "motivo": "Control anual",
+        "estado": "FINALIZADO",
+        "observaciones": "Consulta sin novedades",
+        "mascotaNombre": "Firulais",
+        "veterinarioNombre": "Leandro"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Cambio persistido",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "24 Rechazar turno con mascota inexistente",
+      "method": "POST",
+      "url": "http://localhost:8080/api/turnos",
+      "status": 404,
+      "body": {
+        "mensaje": "Mascota con id 999 no fue encontrada"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Mascota inexistente informada",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "25 Rechazar turno con veterinario inexistente",
+      "method": "POST",
+      "url": "http://localhost:8080/api/turnos",
+      "status": 404,
+      "body": {
+        "mensaje": "Veterinario con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        },
+        {
+          "name": "Veterinario inexistente informado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "26 Rechazar turno inexistente",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos/999",
+      "status": 404,
+      "body": {
+        "mensaje": "Turno con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "27 Rechazar agenda de veterinario inexistente",
+      "method": "GET",
+      "url": "http://localhost:8080/api/turnos/agenda?veterinarioId=999&fecha=2026-10-15",
+      "status": 404,
+      "body": {
+        "mensaje": "Veterinario con id 999 no fue encontrado"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "28 Conservar mascota asociada a turno",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/mascotas/1",
+      "status": 409,
+      "body": {
+        "mensaje": "Mascota con id 1 tiene registros asociados y no puede eliminarse"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Asociación protegida",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "29 Conservar veterinario asociado a turno",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/veterinarios/1",
+      "status": 409,
+      "body": {
+        "mensaje": "Veterinario con id 1 tiene registros asociados y no puede eliminarse"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        },
+        {
+          "name": "Asociación protegida",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "30 Conservar dueño con mascota",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/duenos/1",
+      "status": 409,
+      "body": {
+        "mensaje": "Dueño con id 1 tiene registros asociados y no puede eliminarse"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "31 Verificar respuestas finales con DTOs",
+      "method": "GET",
+      "url": "http://localhost:8080/api/duenos",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "nombre": "Carlos Alberto",
+        "apellido": "González",
+        "dni": "28543210",
+        "telefono": "1199887766",
+        "email": "carlos.nuevo@example.com"
+      },
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Ningún dueño expone la colección JPA",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}
